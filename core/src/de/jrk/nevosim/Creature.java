@@ -247,16 +247,16 @@ public class Creature implements Disposable{
 	}
 	
 	private void drawBody(Texture texture, SpriteBatch batch) {
-		batch.draw(texture, x - 500f + BODY_SIZE/2f + NEvoSim.x, 
-							y - 500f + BODY_SIZE/2f + NEvoSim.y, 
+		batch.draw(texture, x - 500f - BODY_SIZE/2 + NEvoSim.x, 
+							y - 500f - BODY_SIZE/2 + NEvoSim.y, 
 							BODY_SIZE, BODY_SIZE);
 		
-		batch.draw(texture, xFeelerRight - 500f + FEELER_SIZE/2f + NEvoSim.x, 
-							yFeelerRight - 500f + FEELER_SIZE/2f + NEvoSim.y, 
+		batch.draw(texture, xFeelerRight - 500f - FEELER_SIZE/2f + NEvoSim.x, 
+							yFeelerRight - 500f - FEELER_SIZE/2f + NEvoSim.y, 
 							FEELER_SIZE, FEELER_SIZE);
 		
-		batch.draw(texture, xFeelerLeft - 500f + FEELER_SIZE/2f + NEvoSim.x, 
-							yFeelerLeft - 500f + FEELER_SIZE/2f + NEvoSim.y, 
+		batch.draw(texture, xFeelerLeft - 500f - FEELER_SIZE/2f + NEvoSim.x, 
+							yFeelerLeft - 500f - FEELER_SIZE/2f + NEvoSim.y, 
 							FEELER_SIZE, FEELER_SIZE);
 	}
 	

@@ -174,8 +174,8 @@ public class NEvoSim extends ApplicationAdapter {
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
 			lastMouseX = mouseX;
 			lastMouseY = mouseY;
-			mouseX = ((float)width * ((float)screenX / (float)Gdx.graphics.getWidth()) * zoom * zoom * zoom);
-			mouseY = ((float)height * ((float)screenY / (float)Gdx.graphics.getHeight()) * zoom * zoom * zoom);
+			mouseX = width * ((float)screenX / (float)Gdx.graphics.getWidth()) * zoom * zoom * zoom;
+			mouseY = height * ((float)screenY / (float)Gdx.graphics.getHeight()) * zoom * zoom * zoom;
 			x -= ((lastMouseX - mouseX)/(zoom * zoom));
 			y += ((lastMouseY - mouseY)/(zoom * zoom));
 			
@@ -193,7 +193,6 @@ public class NEvoSim extends ApplicationAdapter {
 			else if (amount > 0) zoom += 0.2f;
 			if (zoom < 0.4) zoom = 0.4f;
 			if (zoom > 1.2) zoom = 1.2f;
-//			camera.zoom = (float) (1 / Math.pow(zoom, 2));
 			camera.zoom = zoom;
 			camera.update();
 			batch.setProjectionMatrix(camera.combined);
