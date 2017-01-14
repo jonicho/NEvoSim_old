@@ -35,6 +35,7 @@ public class Overlay implements Disposable{
 		text += "Year: " + Math.round(NEvoSim.year) + "\n";
 		text += "Fps: " + Gdx.graphics.getFramesPerSecond() + "\n";
 		String state;
+		
 		if (NEvoSim.pause) {
 			state = "paused";
 		} else if (NEvoSim.fastForward) {
