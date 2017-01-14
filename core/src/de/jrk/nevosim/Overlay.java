@@ -29,13 +29,7 @@ public class Overlay implements Disposable{
 	}
 	
 	private void updateText() {
-		text = "";
-		text += "Sps (steps per second): " + SimThread.stepsPerSecond + "\n";
-		text += "Creatures: " + SimThread.creatures.size() + "\n";
-		text += "Year: " + Math.round(NEvoSim.year) + "\n";
-		text += "Fps: " + Gdx.graphics.getFramesPerSecond() + "\n";
-		String state;
-		
+		String state;		
 		if (NEvoSim.pause) {
 			state = "paused";
 		} else if (NEvoSim.fastForward) {
@@ -43,6 +37,11 @@ public class Overlay implements Disposable{
 		} else {
 			state = "running";
 		}
+		text = "";
+		text += "Sps (steps per second): " + SimThread.stepsPerSecond + "\n";
+		text += "Creatures: " + SimThread.creatures.size() + "\n";
+		text += "Year: " + Math.round(NEvoSim.year) + "\n";
+		text += "Fps: " + Gdx.graphics.getFramesPerSecond() + "\n";
 		text += "State: " + state + "\n";
 		
 	}

@@ -411,7 +411,7 @@ public class Creature implements Disposable{
 		energy -= Math.pow(outRotate.getValue(), 2) * COST_MULTIPLIER * 100;
 		energy -= outEat.getValue() * outEat.getValue() * COST_MULTIPLIER;
 		energy -= age / 10;
-		if (wantAttack) energy -= 10000;
+		if (wantAttack) energy -= 1 * COST_MULTIPLIER;
 	}
 	
 	private void split() {
