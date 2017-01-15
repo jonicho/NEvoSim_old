@@ -235,12 +235,17 @@ public class Creature implements Disposable{
 		if (!textureCreated) {
 			createTextures();
 		}
-		if (isAttacked) {
-			drawBody(attackedTexture, batch);
-		} else if (attack) {
-			drawBody(attackTexture, batch);
-		} else if (wantAttack) {
-			drawBody(wantAttackTexture, batch);
+		
+		if (NEvoSim.showAttackIndicator) {
+			if (isAttacked) {
+				drawBody(attackedTexture, batch);
+			} else if (attack) {
+				drawBody(attackTexture, batch);
+			} else if (wantAttack) {
+				drawBody(wantAttackTexture, batch);
+			} else {
+				drawBody(texture, batch);
+			} 
 		} else {
 			drawBody(texture, batch);
 		}

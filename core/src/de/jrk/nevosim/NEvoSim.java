@@ -26,7 +26,7 @@ public class NEvoSim extends ApplicationAdapter {
 	private float zoom = 1;
 	public static boolean pause = true;
 	public static boolean fastForward = false;
-	public static int targetFrameDuration = 20;
+	public static int targetFrameDuration = 16;
 	public static Random rand = new Random();
 	public static float year = 0;
 	public static boolean save;
@@ -34,6 +34,7 @@ public class NEvoSim extends ApplicationAdapter {
 	public static ArrayList<Creature> deadCreatures = new ArrayList<Creature>();
 	public static File file;
 	public static boolean showOverlays = true;
+	public static boolean showAttackIndicator = true;;
 	
 	public NEvoSim(File file) {
 		NEvoSim.file = file;
@@ -144,6 +145,12 @@ public class NEvoSim extends ApplicationAdapter {
 				save = true;
 			} else if (keycode == Keys.O) {
 				showOverlays = !showOverlays;
+			} else if (keycode == Keys.UP && targetFrameDuration >= 2) {
+				targetFrameDuration /= 2;
+			} else if (keycode == Keys.DOWN && targetFrameDuration <= 128) {
+				targetFrameDuration *= 2;
+			} else if (keycode == Keys.A) {
+				showAttackIndicator = !showAttackIndicator;
 			}
 			return false;
 		}

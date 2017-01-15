@@ -11,12 +11,15 @@ import com.badlogic.gdx.utils.Disposable;
 
 public class Overlay implements Disposable{
 	
-	private Texture overlay;
+	private Texture background;
 	private BitmapFont font;
 	private String text;
+	private int targetSps;
+	private int backgroundHeight = 150;
+	private int backgroundWidth = 300;
 	
 	public Overlay() {
-		drawOverlay();
+		createBackground();
 		font = new BitmapFont(Gdx.files.internal("assets/fonts/font.fnt"));
 		font.setColor(Color.WHITE);
 		font.getData().setScale(0.2f);
@@ -24,12 +27,14 @@ public class Overlay implements Disposable{
 	
 	public void draw(SpriteBatch batch) {
 		updateText();
-		batch.draw(overlay, -NEvoSim.width/2, NEvoSim.height/2 - overlay.getHeight());
+		batch.draw(background, -NEvoSim.width/2, NEvoSim.height/2 - backgroundHeight, backgroundWidth, backgroundHeight);
 		font.draw(batch, text, -NEvoSim.width/2 + 10, NEvoSim.height/2 - 10);
 	}
 	
 	private void updateText() {
-		String state;		
+		calculateTargetSps();
+		String state;
+		String attIndi;
 		if (NEvoSim.pause) {
 			state = "paused";
 		} else if (NEvoSim.fastForward) {
@@ -37,25 +42,40 @@ public class Overlay implements Disposable{
 		} else {
 			state = "running";
 		}
+		if (NEvoSim.showAttackIndicator) {
+			attIndi = "On";
+		} else {
+			attIndi = "Off";
+		}
 		text = "";
-		text += "Sps (steps per second): " + SimThread.stepsPerSecond + "\n";
+		text += "State: " + state + "\n";
+		text += "Target Sps: " + targetSps + "\n";
+		text += "Sps: " + SimThread.stepsPerSecond + "\n";
+		text += "Attack Indicators: " + attIndi + "\n";
+		text += "Fps: " + Gdx.graphics.getFramesPerSecond() + "\n";
 		text += "Creatures: " + SimThread.creatures.size() + "\n";
 		text += "Year: " + Math.round(NEvoSim.year) + "\n";
-		text += "Fps: " + Gdx.graphics.getFramesPerSecond() + "\n";
-		text += "State: " + state + "\n";
 		
 	}
 	
-	private void drawOverlay() {
-		Pixmap map = new Pixmap(400, 120, Format.RGBA8888);
+	private void calculateTargetSps() {
+		targetSps = (int) (1f / (NEvoSim.targetFrameDuration / 1000f));
+		if (targetSps >= 30) {
+			targetSps /= 10;
+			targetSps *= 10;
+		}
+	}
+
+	private void createBackground() {
+		Pixmap map = new Pixmap(1, 1, Format.RGBA8888);
 		map.setColor(0.2f, 0.2f, 0.2f, 0.7f);
 		map.fill();
-		overlay = new Texture(map);
+		background = new Texture(map);
 		map.dispose();
 	}
 	
 	public void dispose() {
-		overlay.dispose();
+		background.dispose();
 		font.dispose();
 	}
 }
