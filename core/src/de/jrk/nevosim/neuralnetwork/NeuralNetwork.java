@@ -1,8 +1,8 @@
-package de.jrk.nevosim.neuronalnetwork;
+package de.jrk.nevosim.neuralnetwork;
 
 import java.util.ArrayList;
 
-public class NeuronalNetwork {
+public class NeuralNetwork {
 	
 	private ArrayList<InputNeuron> inputNeurons = new ArrayList<InputNeuron>();
 	private ArrayList<WorkingNeuron> hiddenNeurons = new ArrayList<WorkingNeuron>();
@@ -95,8 +95,8 @@ public class NeuronalNetwork {
 		}
 	}
 	
-	public NeuronalNetwork getClonedNetwork() {
-		NeuronalNetwork copy = new NeuronalNetwork();
+	public NeuralNetwork getClonedNetwork() {
+		NeuralNetwork copy = new NeuralNetwork();
 		for (InputNeuron in : inputNeurons) {
 			copy.addInputNeuron(in.getNameCopy());
 		}

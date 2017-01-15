@@ -9,9 +9,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
 
 import de.jrk.nevosim.Tile.TileType;
-import de.jrk.nevosim.neuronalnetwork.InputNeuron;
-import de.jrk.nevosim.neuronalnetwork.NeuronalNetwork;
-import de.jrk.nevosim.neuronalnetwork.WorkingNeuron;
+import de.jrk.nevosim.neuralnetwork.InputNeuron;
+import de.jrk.nevosim.neuralnetwork.NeuralNetwork;
+import de.jrk.nevosim.neuralnetwork.WorkingNeuron;
 
 public class Creature implements Disposable{
 	
@@ -38,7 +38,7 @@ public class Creature implements Disposable{
 	private Texture wantAttackTexture;
 	private Texture attackTexture;
 	private Texture attackedTexture;
-	private NeuronalNetwork brain;
+	private NeuralNetwork brain;
 	private boolean textureCreated = false;
 	private boolean canDispose = false;
 	private boolean alive = true;
@@ -145,7 +145,7 @@ public class Creature implements Disposable{
 		this.nearestCreatureDistance = nearestCreatureDistance;
 	}
 
-	public NeuronalNetwork getBrain() {
+	public NeuralNetwork getBrain() {
 		return brain;
 	}
 	
@@ -168,7 +168,7 @@ public class Creature implements Disposable{
 		direction = (float) (Math.random() * 360);
 		calculateFeelerPos();
 		
-		brain = new NeuronalNetwork();
+		brain = new NeuralNetwork();
 		generateBrain(true);
 		
 		matureAge = (float)Math.random() * 1 + 0.2f;
@@ -220,7 +220,7 @@ public class Creature implements Disposable{
 	}
 	
 	public Creature(String data) {
-		brain = new NeuronalNetwork();
+		brain = new NeuralNetwork();
 		generateBrain(false);
 		try {
 			load(data);

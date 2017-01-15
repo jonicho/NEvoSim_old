@@ -34,7 +34,7 @@ public class NEvoSim extends ApplicationAdapter {
 	public static ArrayList<Creature> deadCreatures = new ArrayList<Creature>();
 	public static File file;
 	public static boolean showOverlays = true;
-	public static boolean showAttackIndicator = true;;
+	public static boolean showAttackIndicator = true;
 	
 	public NEvoSim(File file) {
 		NEvoSim.file = file;

@@ -1,4 +1,4 @@
-package de.jrk.nevosim.neuronalnetwork;
+package de.jrk.nevosim.neuralnetwork;
 
 public class InputNeuron extends Neuron {
 	
