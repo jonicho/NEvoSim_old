@@ -49,6 +49,7 @@ public class Creature implements Disposable{
 	private boolean wantAttack;
 	private boolean attack;
 	private boolean isAttacked;
+	private int splits;
 
 	private static final float COST_MULTIPLIER = 0.01f;
 	private static final float ATTACK_VALUE = 500;
@@ -305,9 +306,7 @@ public class Creature implements Disposable{
 		canDispose = true;
 	}
 	
-	public void update() {
-		brain.invalidate();
-		
+	public void update() {		
 		if (outAttack.getValue() > 0) {
 			wantAttack = true;
 		} else {
@@ -348,8 +347,8 @@ public class Creature implements Disposable{
 		xTileFeelerLeft = (int) (xFeelerLeft / 10);
 		yTileFeelerLeft = (int) (yFeelerLeft / 10);
 		calculateCosts();
-		
-		if (outSplit.getValue() > 0 && energy > 250 && age >= 1) {
+		System.out.println(outSplit.getValue());
+		if (outSplit.getValue() > 0 && energy > 250 && age >= matureAge) {
 			split();
 		}
 		
@@ -362,6 +361,9 @@ public class Creature implements Disposable{
 		age = NEvoSim.year - yearBorn;
 		
 		isAttacked = false;
+		
+		updateInputs();
+		brain.invalidate();
 	}
 	
 	public void updateInputs() {
@@ -420,11 +422,12 @@ public class Creature implements Disposable{
 	}
 	
 	private void split() {
-		Creature childCreature = new Creature(this, energy / 2.5f);
-		energy /= 2.5f;
+		Creature childCreature = new Creature(this, 150);
+		energy -= 150 * (splits + 1);
 		childCreature.getBrain().mutate();
 		SimThread.creatures.add(childCreature);
 		childCreature = null;
+		splits++;
 	}
 	
 	private void generateBrain(boolean randomizeWeights) {

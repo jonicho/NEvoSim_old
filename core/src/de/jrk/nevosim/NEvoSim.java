@@ -78,7 +78,7 @@ public class NEvoSim extends ApplicationAdapter {
 		batchOverlays.begin();
 		if (showOverlays) overlays.draw(batchOverlays);
 		batchOverlays.end();
-		while (deadCreatures.size() > 0) {
+		for (int i = 0; i < deadCreatures.size(); i++) {
 			try {
 				deadCreatures.get(0).dispose();
 			} catch (Exception e) {
@@ -86,6 +86,10 @@ public class NEvoSim extends ApplicationAdapter {
 				System.out.println("Dispose skipped");
 			}
 			deadCreatures.remove(0);
+		}
+		
+		if (!simThread.isAlive()) {
+			Gdx.app.exit();
 		}
 	}
 	

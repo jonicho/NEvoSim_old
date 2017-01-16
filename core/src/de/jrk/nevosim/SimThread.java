@@ -10,6 +10,7 @@ public class SimThread extends Thread implements Disposable{
 	public static ArrayList<Creature> creatures = new ArrayList<Creature>();
 	public static World world = new World();
 	public boolean stop = false;
+	private boolean save = false;
 	private SaveLoad saveLoad = new SaveLoad();
 	public static boolean isStarted = false;
 	public static long nanoFrameDuration;
@@ -30,15 +31,6 @@ public class SimThread extends Thread implements Disposable{
 				world.update();
 				if (creatures.size() > 0) {
 					calculateNearestCreatures();
-					for (int i = 0; i < creatures.size(); i++) {
-						try {
-							creatures.get(i).updateInputs();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-				if (creatures.size() > 0) {
 					for (int i = 0; i < creatures.size(); i++) {
 						try {
 							creatures.get(i).update();
@@ -73,12 +65,20 @@ public class SimThread extends Thread implements Disposable{
 				saveLoad.save(false);
 				NEvoSim.save = !NEvoSim.save;
 			}
+			if (save) {
+				saveLoad.save(true);
+				stop = true;
+			}
 		}
 	}
-	
+
 	public void dispose() {
-		stop = true;
-		saveLoad.save(true);
+		save = true;
+		try {
+			join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void calculateNearestCreatures() {
