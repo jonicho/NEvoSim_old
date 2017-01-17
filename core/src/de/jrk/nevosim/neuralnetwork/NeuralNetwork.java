@@ -2,12 +2,22 @@ package de.jrk.nevosim.neuralnetwork;
 
 import java.util.ArrayList;
 
+/**
+ * A neural network with one input layer, one hidden layer and one output layer.
+ * @author Jonas Keller
+ *
+ */
 public class NeuralNetwork {
 	
 	private ArrayList<InputNeuron> inputNeurons = new ArrayList<InputNeuron>();
 	private ArrayList<WorkingNeuron> hiddenNeurons = new ArrayList<WorkingNeuron>();
 	private ArrayList<WorkingNeuron> outputNeurons = new ArrayList<WorkingNeuron>();
 	
+	/**
+	 * Returns the input neuron with the given name.
+	 * @param name The name of the neuron
+	 * @return the input neuron
+	 */
 	public InputNeuron getInputNeuronFromName(String name) {
 		for (InputNeuron in : inputNeurons) {
 			if (in.name.equals(name)) {
@@ -16,7 +26,12 @@ public class NeuralNetwork {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Returns the output neuron with the given name.
+	 * @param name The name of the neuron
+	 * @return the output neuron
+	 */
 	public WorkingNeuron getOutputNeuronFromName(String name) {
 		for (WorkingNeuron wn : outputNeurons) {
 			if (wn.name.equals(name)) {
@@ -25,7 +40,12 @@ public class NeuralNetwork {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Returns the hidden neuron with the given name.
+	 * @param name The name of the neuron
+	 * @return the hidden neuron
+	 */
 	public WorkingNeuron getHiddenNeuronFromName(String name) {
 		for (WorkingNeuron hn : hiddenNeurons) {
 			if (hn.name.equals(name)) {
@@ -35,24 +55,44 @@ public class NeuralNetwork {
 		return null;
 	}
 	
+	/**
+	 * Adds the given input neuron.
+	 * @param neuron the input neuron to add
+	 */
 	public void addInputNeuron(InputNeuron neuron) {
 		inputNeurons.add(neuron);
 	}
-	
+
+	/**
+	 * Adds the given hidden neuron.
+	 * @param neuron the hidden neuron to add
+	 */
 	public void addHiddenNeuron(WorkingNeuron neuron) {
 		hiddenNeurons.add(neuron);
 	}
-	
+
+	/**
+	 * Adds the given output neuron.
+	 * @param neuron the output neuron to add
+	 */
 	public void addOutputNeuron(WorkingNeuron neuron) {
 		outputNeurons.add(neuron);
 	}
 	
+	/**
+	 * Generates {@code amount} hidden neurons.
+	 * @param amount the amount of hidden neurons
+	 */
 	public void generateHiddenNeurons(int amount) {
 		for (int i = 0; i < amount; i++) {
 			hiddenNeurons.add(new WorkingNeuron("h#" + i, true));
 		}
 	}
 	
+	/**
+	 * Connects the complete output layer with the complete hidden layer 
+	 * and the complete hidden layer with the complete input layer.
+	 */
 	public void generateFullMesh() {
 		for (WorkingNeuron hn : hiddenNeurons) {
 			for (InputNeuron in : inputNeurons) {
@@ -67,6 +107,9 @@ public class NeuralNetwork {
 		}
 	}
 	
+	/**
+	 * Invalidates all neurons.
+	 */
 	public void invalidate() {
 		for (WorkingNeuron hn : hiddenNeurons) {
 			hn.invalidate();
@@ -77,6 +120,9 @@ public class NeuralNetwork {
 		}
 	}
 	
+	/**
+	 * Randomizes all weights.
+	 */
 	public void randomizeAllWeights() {
 		for (WorkingNeuron hn : hiddenNeurons) {
 			hn.randomizeWeights();
@@ -86,6 +132,9 @@ public class NeuralNetwork {
 		}
 	}
 	
+	/**
+	 * Mutates the neural network.
+	 */
 	public void mutate() {
 		for (WorkingNeuron hn : hiddenNeurons) {
 			hn.mutate();
@@ -95,8 +144,13 @@ public class NeuralNetwork {
 		}
 	}
 	
+	/**
+	 * Clones a neural network.
+	 * @return the cloned neural network
+	 */
 	public NeuralNetwork getClonedNetwork() {
 		NeuralNetwork copy = new NeuralNetwork();
+		// adding all neurons that are in this neural network to the cloned neural network
 		for (InputNeuron in : inputNeurons) {
 			copy.addInputNeuron(in.getNameCopy());
 		}
@@ -109,6 +163,7 @@ public class NeuralNetwork {
 		
 		copy.generateFullMesh();
 		
+		// copying all weights
 		for (int i = 0; i < hiddenNeurons.size(); i++) {
 			for (int j = 0; j < hiddenNeurons.get(i).getConnections().size(); j++) {
 				copy.hiddenNeurons.get(i).getConnections().get(j).weight = hiddenNeurons.get(i).getConnections().get(j).weight;
@@ -124,6 +179,10 @@ public class NeuralNetwork {
 		return copy;
 	}
 	
+	/**
+	 * Saves the complete neural network.
+	 * @return the save data
+	 */
 	public String save() {
 		String data = "";
 		
@@ -146,6 +205,10 @@ public class NeuralNetwork {
 		return data;
 	}
 
+	/**
+	 * Loads the neural network with the given data.
+	 * @param data the data to load the neural network
+	 */
 	public void load(String data) {
 		String[] database = data.split("§");
 		String dataHidden = database[0];

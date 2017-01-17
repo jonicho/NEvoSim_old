@@ -1,5 +1,10 @@
 package de.jrk.nevosim.neuralnetwork;
 
+/**
+ * An Input for a neural network.
+ * @author Jonas Keller
+ *
+ */
 public class InputNeuron extends Neuron {
 	
 	public InputNeuron(String name) {
@@ -16,6 +21,10 @@ public class InputNeuron extends Neuron {
 		this.value = value;
 	}
 	
+	/**
+	 * Returns a InputNeuron with the same name.
+	 * @return InputNeuron with the same name
+	 */
 	public InputNeuron getNameCopy() {
 		InputNeuron copy = new InputNeuron(getName());
 		return copy;

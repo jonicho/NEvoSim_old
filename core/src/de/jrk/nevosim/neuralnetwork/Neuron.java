@@ -3,7 +3,7 @@ package de.jrk.nevosim.neuralnetwork;
 /**
  * A neuron with a value.
  * Contains the function to calculate the output value.
- * @author jonas
+ * @author Jonas Keller
  *
  */
 abstract class Neuron {
