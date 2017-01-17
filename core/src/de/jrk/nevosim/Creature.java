@@ -52,7 +52,7 @@ public class Creature implements Disposable{
 	private int splits;
 
 	private static final float COST_MULTIPLIER = 0.01f;
-	private static final float ATTACK_VALUE = 500;
+	private static final float ATTACK_VALUE = 100;
 	private static final float BODY_SIZE = 6;
 	private static final float FEELER_SIZE = 2;
 	
@@ -316,7 +316,7 @@ public class Creature implements Disposable{
 		if (wantAttack) {
 			if (nearestCreature != null) {
 				nearestCreature.energy -= ATTACK_VALUE;
-				energy += ATTACK_VALUE;
+				energy += ATTACK_VALUE/2;
 				nearestCreature.isAttacked = true;
 				attack = true;
 			} else {
@@ -347,7 +347,6 @@ public class Creature implements Disposable{
 		xTileFeelerLeft = (int) (xFeelerLeft / 10);
 		yTileFeelerLeft = (int) (yFeelerLeft / 10);
 		calculateCosts();
-		System.out.println(outSplit.getValue());
 		if (outSplit.getValue() > 0 && energy > 250 && age >= matureAge) {
 			split();
 		}
