@@ -50,7 +50,7 @@ public class WorkingNeuron extends Neuron {
 		for (Connection c : connections) {
 			x += c.getValue();
 		}
-		value = funktion(x);
+		value = function(x);
 	}
 	
 	public WorkingNeuron getNameCopy() {

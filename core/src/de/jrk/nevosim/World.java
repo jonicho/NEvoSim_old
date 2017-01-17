@@ -8,6 +8,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import de.jrk.nevosim.Tile.TileType;
 
+/**
+ * The World.
+ * Contains a 100*100 Array of Tiles.
+ * @author jonas
+ */
 public class World {
 	
 	public static Tile[][] world;
@@ -20,6 +25,10 @@ public class World {
 		generateEmptyWorld();
 	}
 	
+	/**
+	 * Draws the World on the given SpriteBatch.
+	 * @param batch SpriteBatch to draw the World on
+	 */
 	public void draw(SpriteBatch batch) {
 		pixmap.dispose();
 		texture.dispose();
@@ -29,7 +38,7 @@ public class World {
 				if (world[x][y].getType() == TileType.water) {
 					pixmap.setColor(Color.BLUE);
 				} else {
-					pixmap.setColor(1 - ((float)world[x][y].getFood()) / 101, 1, 0, 1);
+					pixmap.setColor(1 - (world[x][y].getFood()) / 101, 1, 0, 1);
 				}
 				pixmap.drawPixel(x, -y + 99);
 			}
@@ -38,10 +47,16 @@ public class World {
 		batch.draw(texture, -500 + NEvoSim.x, -500 + NEvoSim.y, 1000, 1000);
 	}
 	
+	/**
+	 * Updates the World.
+	 */
 	public void update() {
 		grow();
 	}
 	
+	/**
+	 * Lets grow grass.
+	 */
 	private void grow() {
 		for (int x = 0; x < world.length; x++) {
 			for (int y = 0; y < world[0].length; y++) {
@@ -104,6 +119,9 @@ public class World {
 		}
 	}
 	
+	/**
+	 * Generates a random World.
+	 */
 	public void generateRandomWorld() {
 		noise.generateNoise();
 		world = new Tile[100][100];
@@ -120,6 +138,9 @@ public class World {
 		}
 	}
 	
+	/**
+	 * Generates an empty World.
+	 */
 	public void generateEmptyWorld() {
 		world = new Tile[100][100];
 		for (int x = 0; x < world.length; x++) {
@@ -131,6 +152,10 @@ public class World {
 		texture = new Texture(pixmap);
 	}
 	
+	/**
+	 * Saves the World.
+	 * @return The save data
+	 */
 	public String save() {
 		String data = "";
 		for (int x = 0; x < world.length; x++) {
@@ -142,6 +167,10 @@ public class World {
 		return data;
 	}
 	
+	/**
+	 * Loads the World with the given data.
+	 * @param data The data to load the World
+	 */
 	public void load(String data) {
 		String[] database = data.split(",");
 		int i = 0;
