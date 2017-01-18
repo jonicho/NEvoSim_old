@@ -29,6 +29,7 @@ public class Creature implements Disposable {
 	private float xFeelerLeft;
 	private float yFeelerLeft;
 	private float feelerDistance;
+	private float size;
 	private float direction;
 	private int xTile;
 	private int yTile;
@@ -252,6 +253,8 @@ public class Creature implements Disposable {
 	 * @param batch the batch on witch is to be drawn
 	 */
 	public void draw(SpriteBatch batch) {
+		size = ((energy - 80) / (1 + Math.abs(energy / 100))) / 50;
+		
 		if (!textureCreated) {
 			createTextures();
 		}
@@ -277,9 +280,9 @@ public class Creature implements Disposable {
 	 * @param batch the batch on witch is to be drawn
 	 */
 	private void draw(Texture texture, SpriteBatch batch) {
-		batch.draw(texture, x - 500f - BODY_SIZE/2 + NEvoSim.x, 
-							y - 500f - BODY_SIZE/2 + NEvoSim.y, 
-							BODY_SIZE, BODY_SIZE);
+		batch.draw(texture, x - 500f - BODY_SIZE * size/2 + NEvoSim.x, 
+							y - 500f - BODY_SIZE * size/2 + NEvoSim.y, 
+							BODY_SIZE * size, BODY_SIZE * size);
 		
 		batch.draw(texture, xFeelerRight - 500f - FEELER_SIZE/2f + NEvoSim.x, 
 							yFeelerRight - 500f - FEELER_SIZE/2f + NEvoSim.y, 
