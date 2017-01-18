@@ -13,6 +13,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+/**
+ * NEvoSim simulates an evolution with creatures that have neural networks.
+ * With each time a Creature splits, the weights of the neural network changes a bit.
+ * In this way the creatures are getting more intelligent and can survive better.
+ * @author Jonas Keller
+ *
+ */
 public class NEvoSim extends ApplicationAdapter {
 	public static float x;
 	public static float y;
@@ -64,11 +71,12 @@ public class NEvoSim extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
 		if (SimThread.isStarted) {
+			// draw the world and all Creatures
 			SimThread.world.draw(batch);
 			for (int i = 0; i < SimThread.creatures.size(); i++) {
 				try {
 					SimThread.creatures.get(i).draw(batch);
-				} catch (Exception e) {
+				} catch (NullPointerException e) { // catch null pointer exception. Sometimes the Creature dies while it is tried to draw it
 					e.printStackTrace();
 					System.out.println("Draw skipped");
 				}
@@ -76,19 +84,21 @@ public class NEvoSim extends ApplicationAdapter {
 		}
 		batch.end();
 		batchOverlays.begin();
+		// draw the overlay
 		if (showOverlays) overlays.draw(batchOverlays);
 		batchOverlays.end();
 		for (int i = 0; i < deadCreatures.size(); i++) {
+			// delete dead Creatures
 			try {
 				deadCreatures.get(0).dispose();
-			} catch (Exception e) {
+			} catch (NullPointerException e) { // catch null pointer exception
 				e.printStackTrace();
 				System.out.println("Dispose skipped");
 			}
 			deadCreatures.remove(0);
 		}
 		
-		if (!simThread.isAlive()) {
+		if (!simThread.isAlive()) { // exit if the simThread is not alive anymore
 			Gdx.app.exit();
 		}
 	}

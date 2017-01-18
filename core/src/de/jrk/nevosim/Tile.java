@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 
 /**
  * A World Tile.
- * @author jonas
+ * @author Jonas Keller
  *
  */
 public class Tile {

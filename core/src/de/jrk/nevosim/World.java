@@ -11,7 +11,7 @@ import de.jrk.nevosim.Tile.TileType;
 /**
  * The World.
  * Contains a 100*100 Array of Tiles.
- * @author jonas
+ * @author Jonas Keller
  */
 public class World {
 	

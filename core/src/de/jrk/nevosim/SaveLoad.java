@@ -8,6 +8,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.badlogic.gdx.Gdx;
 
+/**
+ * This is to save and load the simulation.
+ * It uses the .nessf (<b>NE</b>voSim <b>s</b>ave <b>f</b>ile) file format.
+ * @author Jonas Keller
+ *
+ */
 public class SaveLoad {
 	private String dataSave = "";
 	private String[] databaseLoad;
@@ -18,6 +24,11 @@ public class SaveLoad {
 		this.file = NEvoSim.file;
 	}
 	
+	/**
+	 * Saves the simulation.
+	 * Uses a JFileChoose to ask for the path.
+	 * @param quit whether the method is executed on quit.
+	 */
 	public void save(boolean quit) {
 		JFileChooser fc = new JFileChooser(file);
 		fc.setDialogTitle("Save");
@@ -45,6 +56,9 @@ public class SaveLoad {
 		}
 	}
 	
+	/**
+	 * Loads the simulation.
+	 */
 	public void load() {
 		if (file != null) {
 			try {

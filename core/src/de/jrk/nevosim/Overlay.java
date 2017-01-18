@@ -9,7 +9,12 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
 
-public class Overlay implements Disposable{
+/**
+ * The overlay shows some information about the simulation.
+ * @author Jonas Keller
+ *
+ */
+public class Overlay implements Disposable {
 	
 	private Texture background;
 	private BitmapFont font;
@@ -25,12 +30,19 @@ public class Overlay implements Disposable{
 		font.getData().setScale(0.2f);
 	}
 	
+	/**
+	 * Draws the overlay on the given SpriteBatch.
+	 * @param batch the batch on witch is to be drawn
+	 */
 	public void draw(SpriteBatch batch) {
 		updateText();
 		batch.draw(background, -NEvoSim.width/2, NEvoSim.height/2 - backgroundHeight, backgroundWidth, backgroundHeight);
 		font.draw(batch, text, -NEvoSim.width/2 + 10, NEvoSim.height/2 - 10);
 	}
 	
+	/**
+	 * Updates the information text.
+	 */
 	private void updateText() {
 		calculateTargetSps();
 		String state;
@@ -58,6 +70,9 @@ public class Overlay implements Disposable{
 		
 	}
 	
+	/**
+	 * Calculates the target Sps (Steps per second) with the target frame duration.
+	 */
 	private void calculateTargetSps() {
 		targetSps = (int) (1f / (NEvoSim.targetFrameDuration / 1000f));
 		if (targetSps >= 30) {
@@ -66,6 +81,9 @@ public class Overlay implements Disposable{
 		}
 	}
 
+	/**
+	 * Creates a transparent background. 
+	 */
 	private void createBackground() {
 		Pixmap map = new Pixmap(1, 1, Format.RGBA8888);
 		map.setColor(0.2f, 0.2f, 0.2f, 0.7f);

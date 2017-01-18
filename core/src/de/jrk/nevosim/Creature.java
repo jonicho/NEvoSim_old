@@ -13,7 +13,13 @@ import de.jrk.nevosim.neuralnetwork.InputNeuron;
 import de.jrk.nevosim.neuralnetwork.NeuralNetwork;
 import de.jrk.nevosim.neuralnetwork.WorkingNeuron;
 
-public class Creature implements Disposable{
+/**
+ * The Creature living in the world and trying to survive.
+ * Each Creature has his own neural network.
+ * @author Jonas Keller
+ *
+ */
+public class Creature implements Disposable {
 	
 	private float x;
 	private float y;
@@ -129,6 +135,10 @@ public class Creature implements Disposable{
 	public float getDirection() {
 		return direction;
 	}
+	
+	public Color getColor() {
+		return color;
+	}
 
 	public Creature getNearestCreature() {
 		return nearestCreature;
@@ -158,7 +168,14 @@ public class Creature implements Disposable{
 		return matureAge;
 	}
 
-	public Creature(Color color, float x, float y) {
+	/**
+	 * Generates a new Creature with the given Color and x- and y-position.
+	 * @param color the color
+	 * @param x the y-position
+	 * @param y the x-position
+	 * @param generateBrain whether a brain (neural network) is to be generated
+	 */
+	public Creature(Color color, float x, float y, boolean generateBrain) {
 		yearBorn = NEvoSim.year;
 		this.color = color;
 		this.x = x;
@@ -170,33 +187,29 @@ public class Creature implements Disposable{
 		calculateFeelerPos();
 		
 		brain = new NeuralNetwork();
-		generateBrain(true);
+		if (generateBrain) generateBrain(true);
 		
 		matureAge = (float)Math.random() * 1 + 0.2f;
 	}
 	
+	/**
+	 * Generates a new creature that inherits from the given mother.
+	 * The complete neural network will be copied and then mutated.
+	 * @param motherCreature the mother of the new creature
+	 * @param energy
+	 */
 	public Creature(Creature motherCreature, float energy) {
+		this(new Color(motherCreature.getColor().r + (float)(Math.random() - 0.5) / 10, 
+					   motherCreature.getColor().g + (float)(Math.random() - 0.5) / 10, 
+					   motherCreature.getColor().b + (float)(Math.random() - 0.5) / 10, 1), 
+					   motherCreature.getX(), motherCreature.getY(), false);
 		matureAge = motherCreature.getMatureAge() + (float)Math.random() * 0.1f - 0.05f;
 		if (matureAge < 0.2f) {
 			matureAge = 0.2f;
 		}
 		yearBorn = NEvoSim.year;
-		x = motherCreature.getX();
-		y = motherCreature.getY();
-		direction = (float)Math.random() * 360;
 		brain = motherCreature.getBrain().getClonedNetwork();
 		this.energy = energy;
-		
-		age = 0;
-		
-		feelerDistance = 10;
-		calculateFeelerPos();
-		
-		float r = motherCreature.getColor().r + (float)(Math.random() - 0.5) / 10;
-		float g = motherCreature.getColor().g + (float)(Math.random() - 0.5) / 10;
-		float b = motherCreature.getColor().b + (float)(Math.random() - 0.5) / 10;
-		
-		color = new Color(r, g, b, 1);
 		
 		inRightFeelerOnLand = brain.getInputNeuronFromName(IN_RIGHTFEELERONLAND);
 		inLeftFeelerOnLand = brain.getInputNeuronFromName(IN_LEFTFEELERONLAND);
@@ -220,18 +233,24 @@ public class Creature implements Disposable{
 		outAttack = brain.getOutputNeuronFromName(OUT_ATTACK);
 	}
 	
+	/**
+	 * Loads a creature from the given data.
+	 * @param data
+	 */
 	public Creature(String data) {
-		brain = new NeuralNetwork();
+		this(null, 0, 0, false);
 		generateBrain(false);
 		try {
 			load(data);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		feelerDistance = 10;
-		calculateFeelerPos();
 	}
 	
+	/**
+	 * Draws the creature on the given SpriteBatch.
+	 * @param batch the batch on witch is to be drawn
+	 */
 	public void draw(SpriteBatch batch) {
 		if (!textureCreated) {
 			createTextures();
@@ -239,20 +258,25 @@ public class Creature implements Disposable{
 		
 		if (NEvoSim.showAttackIndicator) {
 			if (isAttacked) {
-				drawBody(attackedTexture, batch);
+				draw(attackedTexture, batch);
 			} else if (attack) {
-				drawBody(attackTexture, batch);
+				draw(attackTexture, batch);
 			} else if (wantAttack) {
-				drawBody(wantAttackTexture, batch);
+				draw(wantAttackTexture, batch);
 			} else {
-				drawBody(texture, batch);
+				draw(texture, batch);
 			} 
 		} else {
-			drawBody(texture, batch);
+			draw(texture, batch);
 		}
 	}
 	
-	private void drawBody(Texture texture, SpriteBatch batch) {
+	/**
+	 * Draws the creature on the given SpriteBatch with the given texture.
+	 * @param texture the texture
+	 * @param batch the batch on witch is to be drawn
+	 */
+	private void draw(Texture texture, SpriteBatch batch) {
 		batch.draw(texture, x - 500f - BODY_SIZE/2 + NEvoSim.x, 
 							y - 500f - BODY_SIZE/2 + NEvoSim.y, 
 							BODY_SIZE, BODY_SIZE);
@@ -266,6 +290,9 @@ public class Creature implements Disposable{
 							FEELER_SIZE, FEELER_SIZE);
 	}
 	
+	/**
+	 * Creates the four textures.
+	 */
 	private void createTextures() {
 		Pixmap pixmap;
 		pixmap = new Pixmap(220, 220, Format.RGBA8888);
@@ -306,6 +333,9 @@ public class Creature implements Disposable{
 		canDispose = true;
 	}
 	
+	/**
+	 * Updates the creatures.
+	 */
 	public void update() {		
 		if (outAttack.getValue() > 0) {
 			wantAttack = true;
@@ -365,6 +395,9 @@ public class Creature implements Disposable{
 		brain.invalidate();
 	}
 	
+	/**
+	 * Updates the inputs of the neural network.
+	 */
 	public void updateInputs() {
 		if (xTile >= 0 && xTile < 100 && yTile >= 0 && yTile < 100 
 				&& World.world[xTile][yTile].getType() == TileType.land) {
@@ -405,10 +438,9 @@ public class Creature implements Disposable{
 		inGeneticDifference.setValue(geneticDifference);
 	}
 	
-	public Color getColor() {
-		return color;
-	}
-	
+	/**
+	 * Calculates the costs and subtracts is from the energy.
+	 */
 	private void calculateCosts() {
 		if (!(xTile >= 0 && xTile < 100 && yTile >= 0 && yTile < 100 && World.world[xTile][yTile].getType() == TileType.land)) {
 			energy -= 4;
@@ -420,6 +452,9 @@ public class Creature implements Disposable{
 		if (wantAttack) energy -= 1 * COST_MULTIPLIER;
 	}
 	
+	/**
+	 * Creates a new creature with {@code this} as mother and adds it to the list of creatures.
+	 */
 	private void split() {
 		Creature childCreature = new Creature(this, 150);
 		energy -= 150 * (splits + 1);
@@ -429,6 +464,10 @@ public class Creature implements Disposable{
 		splits++;
 	}
 	
+	/**
+	 * Adds all neurons to the neural network and connects them.
+	 * @param randomizeWeights whether the weights are randomized
+	 */
 	private void generateBrain(boolean randomizeWeights) {
 		brain.addInputNeuron(inEnergy);
 		brain.addInputNeuron(inFood);
@@ -460,6 +499,9 @@ public class Creature implements Disposable{
 		if (randomizeWeights) brain.randomizeAllWeights();
 	}
 	
+	/**
+	 * Calculates the position of the feelers.
+	 */
 	private void calculateFeelerPos() {
 		xFeelerRight = (float) (x + Math.sin(Math.toRadians(direction + 15)) * feelerDistance);
 		yFeelerRight = (float) (y + Math.cos(Math.toRadians(direction + 15)) * feelerDistance);
@@ -476,6 +518,10 @@ public class Creature implements Disposable{
 		}
 	}
 	
+	/**
+	 * Saves this creature.
+	 * @return the save data
+	 */
 	public String save() {
 		String data = "";
 		data += x + "," + y + "," + direction + "," + energy + "," + yearBorn + "," 
@@ -483,6 +529,11 @@ public class Creature implements Disposable{
 		return data;
 	}
 	
+	/**
+	 * Loads a creature with the given data.
+	 * @param data the data to load the creature
+	 * @throws Exception if the file is invalid
+	 */
 	public void load(String data) throws Exception {
 		String[] database = data.split(",");
 		if (database.length != 10) {
@@ -498,6 +549,10 @@ public class Creature implements Disposable{
 		brain.load(database[9]);
 	}
 	
+	/**
+	 * Calculates the genetic difference of {@code this} and the nearest creature by
+	 * calculate the distance between the colors.
+	 */
 	private void calculateGeneticDifference() {
 		if (nearestCreature != null) {
 			float rDifference = nearestCreature.getColor().r - color.r;

@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Disposable;
 
+/**
+ * Thread to simulate the creatures and the world.
+ * @author Jonas Keller
+ *
+ */
 public class SimThread extends Thread implements Disposable{
 
 	public static ArrayList<Creature> creatures = new ArrayList<Creature>();
@@ -42,7 +47,7 @@ public class SimThread extends Thread implements Disposable{
 				
 				if (creatures.size() < 10 || Math.random() < 0.01) {
 					creatures.add(new Creature(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1), 
-							(float) Math.random() * 1000, (float) Math.random() * 1000));
+							(float) Math.random() * 1000, (float) Math.random() * 1000, true));
 				}
 
 				NEvoSim.year += 0.0005f;
@@ -81,6 +86,9 @@ public class SimThread extends Thread implements Disposable{
 		}
 	}
 
+	/**
+	 * Calculate the nearest creature of each creature and gives it to the creature.
+	 */
 	private void calculateNearestCreatures() {
 		for (int i = 0; i < creatures.size(); i++) {
 			creatures.get(i).setNearestCreature(null);
@@ -96,6 +104,7 @@ public class SimThread extends Thread implements Disposable{
 					
 					float disX = creatureA.getX() - creatureB.getX();
 					float disY = creatureA.getY() - creatureB.getY();
+					
 					if (disX < 30 && disY < 30) {
 						float rightFeelerDisX = creatureA.getxFeelerRight() - creatureB.getX();
 						float rightFeelerDisY = creatureA.getyFeelerRight() - creatureB.getY();
@@ -120,6 +129,9 @@ public class SimThread extends Thread implements Disposable{
 		}
 	}
 	
+	/**
+	 * Calculates the Sps (Steps per second).
+	 */
 	private void calculateSps() {
 		nanoFrameDuration = nanoTimeEnd - nanoTimeBegin;
 		float sps = 0;
