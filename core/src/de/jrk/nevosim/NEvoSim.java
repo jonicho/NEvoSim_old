@@ -212,7 +212,7 @@ public class NEvoSim extends ApplicationAdapter {
 		public boolean scrolled(int amount) {
 			if (amount < 0) zoom -= 0.2f;
 			else if (amount > 0) zoom += 0.2f;
-			if (zoom < 0.4) zoom = 0.4f;
+			if (zoom < 0.2) zoom = 0.2f;
 			if (zoom > 1.2) zoom = 1.2f;
 			camera.zoom = zoom;
 			camera.update();
