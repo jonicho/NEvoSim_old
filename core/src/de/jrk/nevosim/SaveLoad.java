@@ -10,7 +10,7 @@ import com.badlogic.gdx.Gdx;
 
 /**
  * This is to save and load the simulation.
- * It uses the .nessf (<b>NE</b>voSim <b>s</b>ave <b>f</b>ile) file format.
+ * It uses the .nessf (<b>NE</b>vo<b>S</b>im <b>s</b>ave <b>f</b>ile) file format.
  * @author Jonas Keller
  *
  */
@@ -64,6 +64,7 @@ public class SaveLoad {
 			try {
 				String string = Gdx.files.absolute(file.getPath()).readString();
 				string.replaceAll("\n", "");
+				System.out.println(string);
 				databaseLoad = string.split(";");
 				NEvoSim.year = Float.parseFloat(databaseLoad[0]);
 				SimThread.creatures.removeAll(SimThread.creatures);
@@ -73,7 +74,7 @@ public class SaveLoad {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-			} 
+			}
 		} else {
 			file = new File(System.getProperty("user.home"));
 			SimThread.world.generateRandomWorld();

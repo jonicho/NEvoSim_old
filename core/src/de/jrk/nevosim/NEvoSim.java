@@ -26,10 +26,10 @@ public class NEvoSim extends ApplicationAdapter {
 	public static float width;
 	public static float height;
 	private SpriteBatch batch;
-	private SpriteBatch batchOverlays;
+	private SpriteBatch batchOverlay;
 	private OrthographicCamera camera;
 	private OrthographicCamera cameraOverlays;
-	private Overlay overlays;
+	private Overlay overlay;
 	private float zoom = 1;
 	public static boolean pause = true;
 	public static boolean fastForward = false;
@@ -40,7 +40,7 @@ public class NEvoSim extends ApplicationAdapter {
 	public static SimThread simThread;
 	public static ArrayList<Creature> deadCreatures = new ArrayList<Creature>();
 	public static File file;
-	public static boolean showOverlays = true;
+	public static boolean showOverlay = true;
 	public static boolean showAttackIndicator = true;
 	
 	public NEvoSim(File file) {
@@ -51,10 +51,10 @@ public class NEvoSim extends ApplicationAdapter {
 	public void create() {
 		simThread = new SimThread();
 		camera = new OrthographicCamera(1000, 1000);
-		overlays = new Overlay();
+		overlay = new Overlay();
 		batch = new SpriteBatch();
 		cameraOverlays = new OrthographicCamera(1000, 1000);
-		batchOverlays = new SpriteBatch();
+		batchOverlay = new SpriteBatch();
 		Gdx.input.setInputProcessor(new Input());
 		simThread.start();
 		camera.zoom = 1;
@@ -62,7 +62,7 @@ public class NEvoSim extends ApplicationAdapter {
 		cameraOverlays.zoom = 1;
 		cameraOverlays.update();
 		batch.setProjectionMatrix(camera.combined);
-		batchOverlays.setProjectionMatrix(cameraOverlays.combined);
+		batchOverlay.setProjectionMatrix(cameraOverlays.combined);
 	}
 	
 	@Override
@@ -81,12 +81,13 @@ public class NEvoSim extends ApplicationAdapter {
 					System.out.println("Draw skipped");
 				}
 			}
+			overlay.drawNightOverlay(batch);
 		}
 		batch.end();
-		batchOverlays.begin();
+		batchOverlay.begin();
 		// draw the overlay
-		if (showOverlays) overlays.draw(batchOverlays);
-		batchOverlays.end();
+		if (showOverlay) overlay.draw(batchOverlay);
+		batchOverlay.end();
 		for (int i = 0; i < deadCreatures.size(); i++) {
 			// delete dead Creatures
 			try {
@@ -107,7 +108,7 @@ public class NEvoSim extends ApplicationAdapter {
 	public void dispose() {
 		simThread.dispose();
 		batch.dispose();
-		batchOverlays.dispose();
+		batchOverlay.dispose();
 	}
 	
 	@Override
@@ -115,7 +116,7 @@ public class NEvoSim extends ApplicationAdapter {
 		if (width == 0) width = 1;
 		if (height == 0) height = 1;
 		resize(width, height, camera, batch);
-		resize(width, height, cameraOverlays, batchOverlays);
+		resize(width, height, cameraOverlays, batchOverlay);
 		NEvoSim.width = camera.viewportWidth;
 		NEvoSim.height = camera.viewportHeight;
 	}
@@ -158,7 +159,7 @@ public class NEvoSim extends ApplicationAdapter {
 			} else if (keycode == Keys.S) {
 				save = true;
 			} else if (keycode == Keys.O) {
-				showOverlays = !showOverlays;
+				showOverlay = !showOverlay;
 			} else if (keycode == Keys.UP && targetFrameDuration >= 2) {
 				targetFrameDuration /= 2;
 			} else if (keycode == Keys.DOWN && targetFrameDuration <= 128) {

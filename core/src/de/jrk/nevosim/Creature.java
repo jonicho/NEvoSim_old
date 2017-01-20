@@ -57,8 +57,11 @@ public class Creature implements Disposable {
 	private boolean attack;
 	private boolean isAttacked;
 	private int splits;
+	private float nightCosts;
+	private boolean sleeping;
 
-	private static final float COST_MULTIPLIER = 0.01f;
+	private static final float COST_MULTIPLIER = 0.005f;
+	private static final float COST_MULTIPLIER_NIGHT = 3f;
 	private static final float ATTACK_VALUE = 100;
 	private static final float BODY_SIZE = 6;
 	private static final float FEELER_SIZE = 2;
@@ -76,6 +79,7 @@ public class Creature implements Disposable {
 	public static final String IN_OSCILLATION = "in11";
 	public static final String IN_GENETICDIFFERENCE = "in12";
 	public static final String IN_ISATTACKED = "in13";
+	public static final String IN_DAY = "in14";
 
 	public static final String OUT_ROTATE = "out1";
 	public static final String OUT_EAT = "out2";
@@ -85,6 +89,7 @@ public class Creature implements Disposable {
 	public static final String OUT_MEMORY2 = "out6";
 	public static final String OUT_OSCILLATION = "out7";
 	public static final String OUT_ATTACK = "out8";
+	public static final String OUT_SLEEP = "out9";
 	
 	private InputNeuron inRightFeelerOnLand = new InputNeuron(IN_RIGHTFEELERONLAND);
 	private InputNeuron inLeftFeelerOnLand = new InputNeuron(IN_LEFTFEELERONLAND);
@@ -99,6 +104,7 @@ public class Creature implements Disposable {
 	private InputNeuron inOscillation = new InputNeuron(IN_OSCILLATION);
 	private InputNeuron inGeneticDifference = new InputNeuron(IN_GENETICDIFFERENCE);
 	private InputNeuron inIsAttacked = new InputNeuron(IN_ISATTACKED);
+	private InputNeuron inDay = new InputNeuron(IN_DAY);
 	
 	private WorkingNeuron outRotate = new WorkingNeuron(OUT_ROTATE, false);
 	private WorkingNeuron outEat = new WorkingNeuron(OUT_EAT, false);
@@ -108,6 +114,7 @@ public class Creature implements Disposable {
 	private WorkingNeuron outMemory2 = new WorkingNeuron(OUT_MEMORY2, false);
 	private WorkingNeuron outOscillation = new WorkingNeuron(IN_OSCILLATION, false);
 	private WorkingNeuron outAttack = new WorkingNeuron(OUT_ATTACK, false);
+	private WorkingNeuron outSleep = new WorkingNeuron(OUT_SLEEP, false);
 	
 	public float getX() {
 		return x;
@@ -212,26 +219,28 @@ public class Creature implements Disposable {
 		brain = motherCreature.getBrain().getClonedNetwork();
 		this.energy = energy;
 		
-		inRightFeelerOnLand = brain.getInputNeuronFromName(IN_RIGHTFEELERONLAND);
-		inLeftFeelerOnLand = brain.getInputNeuronFromName(IN_LEFTFEELERONLAND);
-		inOnLand = brain.getInputNeuronFromName(IN_ONLAND);
-		inFood = brain.getInputNeuronFromName(IN_FOOD);
-		inEnergy = brain.getInputNeuronFromName(IN_ENERGY);
-		inRightFeelerFood = brain.getInputNeuronFromName(IN_RIGHTFEELERFOOD);
-		inLeftFeelerFood = brain.getInputNeuronFromName(IN_LEFTFEELERFOOD);
-		inAge = brain.getInputNeuronFromName(IN_AGE);
-		inMemory1 = brain.getInputNeuronFromName(IN_MEMORY1);
-		inMemory2 = brain.getInputNeuronFromName(IN_MEMORY2);
-		inGeneticDifference = brain.getInputNeuronFromName(IN_GENETICDIFFERENCE);
-		inIsAttacked = brain.getInputNeuronFromName(IN_ISATTACKED);
+		inRightFeelerOnLand = brain.getInputNeuron(IN_RIGHTFEELERONLAND);
+		inLeftFeelerOnLand = brain.getInputNeuron(IN_LEFTFEELERONLAND);
+		inOnLand = brain.getInputNeuron(IN_ONLAND);
+		inFood = brain.getInputNeuron(IN_FOOD);
+		inEnergy = brain.getInputNeuron(IN_ENERGY);
+		inRightFeelerFood = brain.getInputNeuron(IN_RIGHTFEELERFOOD);
+		inLeftFeelerFood = brain.getInputNeuron(IN_LEFTFEELERFOOD);
+		inAge = brain.getInputNeuron(IN_AGE);
+		inMemory1 = brain.getInputNeuron(IN_MEMORY1);
+		inMemory2 = brain.getInputNeuron(IN_MEMORY2);
+		inGeneticDifference = brain.getInputNeuron(IN_GENETICDIFFERENCE);
+		inIsAttacked = brain.getInputNeuron(IN_ISATTACKED);
+		inDay = brain.getInputNeuron(IN_DAY);
 		
-		outRotate = brain.getOutputNeuronFromName(OUT_ROTATE);
-		outEat = brain.getOutputNeuronFromName(OUT_EAT);
-		outMove = brain.getOutputNeuronFromName(OUT_MOVE);
-		outSplit = brain.getOutputNeuronFromName(OUT_SPLIT);
-		outMemory1 = brain.getOutputNeuronFromName(OUT_MEMORY1);
-		outMemory2 = brain.getOutputNeuronFromName(OUT_MEMORY2);
-		outAttack = brain.getOutputNeuronFromName(OUT_ATTACK);
+		outRotate = brain.getOutputNeuron(OUT_ROTATE);
+		outEat = brain.getOutputNeuron(OUT_EAT);
+		outMove = brain.getOutputNeuron(OUT_MOVE);
+		outSplit = brain.getOutputNeuron(OUT_SPLIT);
+		outMemory1 = brain.getOutputNeuron(OUT_MEMORY1);
+		outMemory2 = brain.getOutputNeuron(OUT_MEMORY2);
+		outAttack = brain.getOutputNeuron(OUT_ATTACK);
+		outSleep = brain.getOutputNeuron(OUT_SLEEP);
 	}
 	
 	/**
@@ -246,6 +255,7 @@ public class Creature implements Disposable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		calculateFeelerPos();
 	}
 	
 	/**
@@ -339,37 +349,47 @@ public class Creature implements Disposable {
 	/**
 	 * Updates the creatures.
 	 */
-	public void update() {		
-		if (outAttack.getValue() > 0) {
-			wantAttack = true;
-		} else {
-			wantAttack = false;
-		}
-		
-		if (wantAttack) {
-			if (nearestCreature != null) {
-				nearestCreature.energy -= ATTACK_VALUE;
-				energy += ATTACK_VALUE/2;
-				nearestCreature.isAttacked = true;
-				attack = true;
+	public void update() {
+		sleeping = outSleep.getValue() > 0;
+		if (sleeping) {
+			if (outAttack.getValue() > 0) {
+				wantAttack = true;
+			} else {
+				wantAttack = false;
+			}
+			if (wantAttack) {
+				if (nearestCreature != null) {
+					nearestCreature.energy -= ATTACK_VALUE;
+					energy += ATTACK_VALUE / 2;
+					nearestCreature.isAttacked = true;
+					attack = true;
+				} else {
+					attack = false;
+				}
 			} else {
 				attack = false;
 			}
-		} else {
-			attack = false;
-		}
-		speed = outMove.getValue() * outMove.getValue();
-		direction += outRotate.getValue();
-		if (direction > 360) direction -= 360;
-		if (direction < 0) direction += 360;
-		
-		if (outEat.getValue() > 0.1 || outEat.getValue() < -0.1) {
-			if (xTile >= 0 && xTile < 100 && yTile >= 0 && yTile < 100 
-					&& World.world[xTile][yTile].getType() == TileType.land) {
-				float eatValue = World.world[xTile][yTile].letEat();
-				energy += eatValue;
+			speed = outMove.getValue() * outMove.getValue();
+			direction += outRotate.getValue();
+			if (direction > 360)
+				direction -= 360;
+			if (direction < 0)
+				direction += 360;
+			if (outEat.getValue() > 0.1 || outEat.getValue() < -0.1) {
+				if (xTile >= 0 && xTile < 100 && yTile >= 0 && yTile < 100
+						&& World.world[xTile][yTile].getType() == TileType.land) {
+					energy += World.world[xTile][yTile].letEat();
+				}
 			}
+			if (outSplit.getValue() > 0 && energy > 250 && age >= matureAge) {
+				split();
+			} 
+		} else {
+			wantAttack = false;
+			attack = false;
+			speed = 0;
 		}
+		
 		x += Math.sin(Math.toRadians(direction)) * speed;
 		y += Math.cos(Math.toRadians(direction)) * speed;
 		calculateFeelerPos();
@@ -380,9 +400,6 @@ public class Creature implements Disposable {
 		xTileFeelerLeft = (int) (xFeelerLeft / 10);
 		yTileFeelerLeft = (int) (yFeelerLeft / 10);
 		calculateCosts();
-		if (outSplit.getValue() > 0 && energy > 250 && age >= matureAge) {
-			split();
-		}
 		
 		if (energy < 100) {
 			alive = false;
@@ -439,20 +456,33 @@ public class Creature implements Disposable {
 		inOscillation.setValue((float) Math.sin(age * outOscillation.getValue() * 100) * 40);
 		calculateGeneticDifference();
 		inGeneticDifference.setValue(geneticDifference);
+		if (World.day) {
+			inDay.setValue(1);
+		} else {
+			inDay.setValue(-1);
+		}
 	}
 	
 	/**
 	 * Calculates the costs and subtracts is from the energy.
 	 */
 	private void calculateCosts() {
+		if (sleeping) {
+			if (World.day) {
+				nightCosts = 1;
+			} else {
+				nightCosts = COST_MULTIPLIER_NIGHT;
+			}
+			energy -= speed * speed * 2 * COST_MULTIPLIER * nightCosts;
+			energy -= Math.pow(outRotate.getValue(), 2) * COST_MULTIPLIER * 100 * nightCosts;
+			energy -= outEat.getValue() * outEat.getValue() * COST_MULTIPLIER * nightCosts;
+			if (wantAttack)
+				energy -= 1 * COST_MULTIPLIER * nightCosts;
+		}
+		energy -= age / 10;
 		if (!(xTile >= 0 && xTile < 100 && yTile >= 0 && yTile < 100 && World.world[xTile][yTile].getType() == TileType.land)) {
 			energy -= 4;
 		}
-		energy -= speed * speed * 2 * COST_MULTIPLIER;
-		energy -= Math.pow(outRotate.getValue(), 2) * COST_MULTIPLIER * 100;
-		energy -= outEat.getValue() * outEat.getValue() * COST_MULTIPLIER;
-		energy -= age / 10;
-		if (wantAttack) energy -= 1 * COST_MULTIPLIER;
 	}
 	
 	/**
@@ -485,6 +515,7 @@ public class Creature implements Disposable {
 		brain.addInputNeuron(inOscillation);
 		brain.addInputNeuron(inGeneticDifference);
 		brain.addInputNeuron(inIsAttacked);
+		brain.addInputNeuron(inDay);
 		
 		brain.generateHiddenNeurons(15);
 		
@@ -496,6 +527,7 @@ public class Creature implements Disposable {
 		brain.addOutputNeuron(outMemory2);
 		brain.addOutputNeuron(outOscillation);
 		brain.addOutputNeuron(outAttack);
+		brain.addOutputNeuron(outSleep);
 		
 		brain.generateFullMesh();
 		

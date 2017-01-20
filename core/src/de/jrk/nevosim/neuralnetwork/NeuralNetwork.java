@@ -18,7 +18,7 @@ public class NeuralNetwork {
 	 * @param name The name of the neuron
 	 * @return the input neuron
 	 */
-	public InputNeuron getInputNeuronFromName(String name) {
+	public InputNeuron getInputNeuron(String name) {
 		for (InputNeuron in : inputNeurons) {
 			if (in.name.equals(name)) {
 				return in;
@@ -32,7 +32,7 @@ public class NeuralNetwork {
 	 * @param name The name of the neuron
 	 * @return the output neuron
 	 */
-	public WorkingNeuron getOutputNeuronFromName(String name) {
+	public WorkingNeuron getOutputNeuron(String name) {
 		for (WorkingNeuron wn : outputNeurons) {
 			if (wn.name.equals(name)) {
 				return wn;
@@ -46,7 +46,7 @@ public class NeuralNetwork {
 	 * @param name The name of the neuron
 	 * @return the hidden neuron
 	 */
-	public WorkingNeuron getHiddenNeuronFromName(String name) {
+	public WorkingNeuron getHiddenNeuron(String name) {
 		for (WorkingNeuron hn : hiddenNeurons) {
 			if (hn.name.equals(name)) {
 				return hn;
@@ -218,7 +218,7 @@ public class NeuralNetwork {
 		
 		for (int i = 0; i < databaseHidden.length; i++) {
 			String[] databaseN = databaseHidden[i].split(":");
-			WorkingNeuron neuron = getHiddenNeuronFromName(databaseN[0]);
+			WorkingNeuron neuron = getHiddenNeuron(databaseN[0]);
 			if (neuron != null) {
 				neuron.load(databaseN);
 			}
@@ -226,7 +226,7 @@ public class NeuralNetwork {
 		
 		for (int i = 0; i < databaseOutput.length; i++) {
 			String[] databaseN = databaseOutput[i].split(":");
-			WorkingNeuron neuron = getOutputNeuronFromName(databaseN[0]);
+			WorkingNeuron neuron = getOutputNeuron(databaseN[0]);
 			if (neuron != null) neuron.load(databaseN);
 		}
 	}
