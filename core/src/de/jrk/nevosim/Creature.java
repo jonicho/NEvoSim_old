@@ -59,9 +59,10 @@ public class Creature implements Disposable {
 	private int splits;
 	private float nightCosts;
 	private boolean sleeping;
+	private int generation;
 
 	private static final float COST_MULTIPLIER = 0.005f;
-	private static final float COST_MULTIPLIER_NIGHT = 3f;
+	private static final float COST_MULTIPLIER_NIGHT = 2f;
 	private static final float ATTACK_VALUE = 100;
 	private static final float BODY_SIZE = 6;
 	private static final float FEELER_SIZE = 2;
@@ -175,6 +176,10 @@ public class Creature implements Disposable {
 	public float getMatureAge() {
 		return matureAge;
 	}
+	
+	public int getGeneration() {
+		return generation;
+	}
 
 	/**
 	 * Generates a new Creature with the given Color and x- and y-position.
@@ -216,6 +221,7 @@ public class Creature implements Disposable {
 			matureAge = 0.2f;
 		}
 		yearBorn = NEvoSim.year;
+		generation = motherCreature.getGeneration() + 1;
 		brain = motherCreature.getBrain().getClonedNetwork();
 		this.energy = energy;
 		
@@ -480,18 +486,19 @@ public class Creature implements Disposable {
 				energy -= 1 * COST_MULTIPLIER * nightCosts;
 		}
 		energy -= age / 10;
-		if (!(xTile >= 0 && xTile < 100 && yTile >= 0 && yTile < 100 && World.world[xTile][yTile].getType() == TileType.land)) {
+		if (!(xTile >= 0 && xTile < World.world.length && yTile >= 0 && yTile < World.world[0].length && World.world[xTile][yTile].getType() == TileType.land)) {
 			energy -= 4;
 		}
 	}
 	
 	/**
 	 * Creates a new creature with {@code this} as mother and adds it to the list of creatures.
+	 * The neural network is mutated with {@code (1 / (generation + 5)) * 5 + 0.1f}.
 	 */
 	private void split() {
 		Creature childCreature = new Creature(this, 150);
-		energy -= 150 * (splits + 1);
-		childCreature.getBrain().mutate();
+		energy -= 150;
+		childCreature.getBrain().mutate((1 / (generation + 5)) * 5 + 0.1f);
 		SimThread.creatures.add(childCreature);
 		childCreature = null;
 		splits++;
@@ -517,7 +524,7 @@ public class Creature implements Disposable {
 		brain.addInputNeuron(inIsAttacked);
 		brain.addInputNeuron(inDay);
 		
-		brain.generateHiddenNeurons(15);
+		brain.generateHiddenNeurons(10);
 		
 		brain.addOutputNeuron(outEat);
 		brain.addOutputNeuron(outMove);

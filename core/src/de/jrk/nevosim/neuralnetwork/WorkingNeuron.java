@@ -110,13 +110,14 @@ public class WorkingNeuron extends Neuron {
 	}
 	
 	/**
-	 * Changes the value of about 30% of the connections by {@code 0.1}.
+	 * Changes the value of the connections with the given value.
+	 * @param value the mutate value. Should be between {@code 0.0} and {@code 1.0}.
 	 */
-	public void mutate() {
+	public void mutate(float value) {
 		for (Connection connection : connections) {
-			if (Math.random() > 0.3) {
-				if (NEvoSim.rand.nextBoolean()) connection.weight += 0.1f;
-				else connection.weight -= 0.1f;
+			if (Math.random() > value) {
+				if (NEvoSim.rand.nextBoolean()) connection.weight += value;
+				else connection.weight -= value;
 			}
 		}
 	}

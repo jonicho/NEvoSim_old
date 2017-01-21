@@ -70,57 +70,37 @@ public class World {
 			for (int y = 0; y < world[0].length; y++) {
 				if (world[x][y].getType() == Tile.TileType.land && world[x][y].getFood() <= 100) {
 					boolean canGrow = false;
-					boolean canGrowFast = false;
 					if (y - 1 >= 0) {
-						if (world[x][y - 1].getType() == Tile.TileType.water) {
-							canGrowFast = true;
-						} else if (world[x][y - 1].getType() == Tile.TileType.land 
-								&& world[x][y - 1].getFood() > 90) {
+						if (world[x][y - 1].getType() == TileType.water 
+								|| world[x][y - 1].getFood() > 90) {
 							canGrow = true;
 						}
-					}  else {
-						canGrowFast = true;
 					}
 					
-					if (x + 1 < world.length) {
-						if (world[x + 1][y].getType() == Tile.TileType.water) {
-							canGrowFast = true;
-						} else if (world[x + 1][y].getType() == Tile.TileType.land 
-								&& world[x + 1][y].getFood() > 90) {
+					if (!canGrow && x + 1 < world.length) {
+						if (world[x + 1][y].getType() == TileType.water
+								|| world[x + 1][y].getFood() > 90) {
 							canGrow = true;
 						}
-					} else {
-						canGrowFast = true;
 					}
 					
-					if (y + 1 < world[0].length) {
-						if (world[x][y + 1].getType() == Tile.TileType.water) {
-							canGrowFast = true;
-						} else if (world[x][y + 1].getType() == Tile.TileType.land 
-								&& world[x][y + 1].getFood() > 90) {
+					if (!canGrow && y + 1 < world[0].length) {
+						if (world[x][y + 1].getType() == TileType.water 
+								|| world[x][y + 1].getFood() > 90) {
 							canGrow = true;
 						}
-					} else {
-						canGrowFast = true;
 					}
 					
-					if (x - 1 >= 0) {
-						if (world[x - 1][y].getType() == Tile.TileType.water) {
-							canGrowFast = true;
-						} else if (world[x - 1][y].getType() == Tile.TileType.land 
-								&& world[x - 1][y].getFood() > 90) {
+					if (!canGrow && x - 1 >= 0) {
+						if (world[x - 1][y].getType() == TileType.water 
+								|| world[x - 1][y].getFood() > 90) {
 							canGrow = true;
 						}
-					} else {
-						canGrowFast = true;
 					}
 					
 					
-					if (canGrowFast) {
-						world[x][y].grow((float) (Math.random() * 0.4f));
-					} else
-						if (canGrow) {
-						world[x][y].grow((float) (Math.random() * 0.1f));
+					if (canGrow) {
+						world[x][y].grow((float) (Math.random() * 0.2f));
 					}
 				}
 			}
