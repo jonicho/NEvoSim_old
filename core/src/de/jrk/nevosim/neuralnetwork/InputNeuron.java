@@ -17,8 +17,23 @@ public class InputNeuron extends Neuron {
 		return value;
 	}
 	
+	/**
+	 * Sets the value of the neuron.
+	 * @param value the value
+	 */
 	public void setValue(float value) {
 		this.value = value;
+	}
+	
+	/**
+	 * Sets the value of the neuron with a boolean.
+	 * If {@code value} is {@code true} the value is set to {@code 1}.
+	 * If {@code value} is {@code false} the value is set to {@code -1}
+	 * @param value the value
+	 */
+	public void setValue(boolean value) {
+		if (value) this.value = 1;
+		else this.value = -1;
 	}
 	
 	/**

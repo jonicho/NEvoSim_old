@@ -64,7 +64,6 @@ public class SaveLoad {
 			try {
 				String string = Gdx.files.absolute(file.getPath()).readString();
 				string.replaceAll("\n", "");
-				System.out.println(string);
 				databaseLoad = string.split(";");
 				NEvoSim.year = Float.parseFloat(databaseLoad[0]);
 				SimThread.creatures.removeAll(SimThread.creatures);

@@ -84,7 +84,7 @@ public class Tile {
 	
 	/**
 	 * The type of a tile.
-	 * @author jonas
+	 * @author Jonas Keller
 	 *
 	 */
 	public enum TileType{

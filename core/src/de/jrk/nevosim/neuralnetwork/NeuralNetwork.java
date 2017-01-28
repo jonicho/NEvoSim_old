@@ -136,12 +136,12 @@ public class NeuralNetwork {
 	 * Mutates the neural network.
 	 * @param value the mutate value. Should be between {@code 0.0} and {@code 1.0}.
 	 */
-	public void mutate(float value) {
+	public void mutate() {
 		for (WorkingNeuron hn : hiddenNeurons) {
-			hn.mutate(value);
+			hn.mutate();
 		}
 		for (WorkingNeuron on : outputNeurons) {
-			on.mutate(value);
+			on.mutate();
 		}
 	}
 	

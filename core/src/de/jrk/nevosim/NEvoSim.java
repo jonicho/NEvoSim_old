@@ -28,7 +28,7 @@ public class NEvoSim extends ApplicationAdapter {
 	private SpriteBatch batch;
 	private SpriteBatch batchOverlay;
 	private OrthographicCamera camera;
-	private OrthographicCamera cameraOverlays;
+	private OrthographicCamera cameraOverlay;
 	private Overlay overlay;
 	private float zoom = 1;
 	public static boolean pause = true;
@@ -53,16 +53,17 @@ public class NEvoSim extends ApplicationAdapter {
 		camera = new OrthographicCamera(1000, 1000);
 		overlay = new Overlay();
 		batch = new SpriteBatch();
-		cameraOverlays = new OrthographicCamera(1000, 1000);
+		cameraOverlay = new OrthographicCamera(1000, 1000);
 		batchOverlay = new SpriteBatch();
 		Gdx.input.setInputProcessor(new Input());
+		simThread.setPriority(Thread.MIN_PRIORITY);
 		simThread.start();
 		camera.zoom = 1;
 		camera.update();
-		cameraOverlays.zoom = 1;
-		cameraOverlays.update();
+		cameraOverlay.zoom = 1;
+		cameraOverlay.update();
 		batch.setProjectionMatrix(camera.combined);
-		batchOverlay.setProjectionMatrix(cameraOverlays.combined);
+		batchOverlay.setProjectionMatrix(cameraOverlay.combined);
 	}
 	
 	@Override
@@ -76,12 +77,11 @@ public class NEvoSim extends ApplicationAdapter {
 			for (int i = 0; i < SimThread.creatures.size(); i++) {
 				try {
 					SimThread.creatures.get(i).draw(batch);
-				} catch (NullPointerException e) { // catch null pointer exception. Sometimes the Creature dies while it is tried to draw it
+				} catch (Exception e) { // catch exception. Sometimes the Creature dies while it is tried to draw it
 					e.printStackTrace();
 					System.out.println("Draw skipped");
 				}
 			}
-			overlay.drawNightOverlay(batch);
 		}
 		batch.end();
 		batchOverlay.begin();
@@ -92,7 +92,7 @@ public class NEvoSim extends ApplicationAdapter {
 			// delete dead Creatures
 			try {
 				deadCreatures.get(0).dispose();
-			} catch (NullPointerException e) { // catch null pointer exception
+			} catch (Exception e) { // catch exception
 				e.printStackTrace();
 				System.out.println("Dispose skipped");
 			}
@@ -116,7 +116,7 @@ public class NEvoSim extends ApplicationAdapter {
 		if (width == 0) width = 1;
 		if (height == 0) height = 1;
 		resize(width, height, camera, batch);
-		resize(width, height, cameraOverlays, batchOverlay);
+		resize(width, height, cameraOverlay, batchOverlay);
 		NEvoSim.width = camera.viewportWidth;
 		NEvoSim.height = camera.viewportHeight;
 	}

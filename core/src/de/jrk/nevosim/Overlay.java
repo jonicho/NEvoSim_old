@@ -17,7 +17,6 @@ import com.badlogic.gdx.utils.Disposable;
 public class Overlay implements Disposable {
 	
 	private Texture background;
-	private Texture nightOverlay;
 	private BitmapFont font;
 	private String text;
 	private int targetSps;
@@ -29,24 +28,6 @@ public class Overlay implements Disposable {
 		font = new BitmapFont(Gdx.files.internal("assets/fonts/font.fnt"));
 		font.setColor(Color.WHITE);
 		font.getData().setScale(0.2f);
-		generateNightOverlay();
-	}
-	
-	/**
-	 * Generates the overlay for the night.
-	 */
-	private void generateNightOverlay() {
-		Pixmap map = new Pixmap(1, 1, Format.RGBA8888);
-		map.setColor(new Color(0.3f, 0.3f, 0.3f, 0.7f));
-		map.drawPixel(0, 0);
-		nightOverlay = new Texture(map);
-		map.dispose();
-	}
-	
-	public void drawNightOverlay(SpriteBatch batch) {
-		if (!World.day) {
-			batch.draw(nightOverlay, -500 + NEvoSim.x, -500 + NEvoSim.y, 1000, 1000);
-		}
 	}
 	
 	/**

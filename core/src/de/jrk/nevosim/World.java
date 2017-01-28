@@ -19,9 +19,6 @@ public class World {
 	private ValueNoise noise;
 	private Pixmap pixmap;
 	private Texture texture;
-	public static boolean day;
-	private int dayDuration;
-	private final static int DAY_DURATION = 2000;
 	
 	public World() {
 		noise = new ValueNoise();
@@ -54,12 +51,7 @@ public class World {
 	 * Updates the World.
 	 */
 	public void update() {
-		dayDuration++;
-		if (dayDuration >= DAY_DURATION) {
-			day = !day;
-			dayDuration = 0;
-		}
-		if (day) grow();
+		grow();
 	}
 	
 	/**
@@ -152,8 +144,6 @@ public class World {
 			}
 			data += "\n";
 		}
-		data += day + ",";
-		data += dayDuration + ",\n";
 		return data;
 	}
 	
@@ -175,9 +165,5 @@ public class World {
 				i++;
 			}
 		}
-		System.out.println(database[i]);
-		day = database[i].contains("true");
-		i++;
-		dayDuration = Integer.parseInt(database[i]);
 	}
 }

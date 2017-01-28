@@ -72,6 +72,14 @@ public class WorkingNeuron extends Neuron {
 		}
 		return value;
 	}
+	
+	/**
+	 * Returns the value as a boolean.
+	 * @return {@code true} if the value is more than {@code 0.1} or less than {@code -0.1}
+	 */
+	public boolean getValueBool() {
+		return getValue() > 0.1 || getValue() < -0.1;
+	}
 
 	/**
 	 * Calculates the value with the values of all connections.
@@ -105,19 +113,18 @@ public class WorkingNeuron extends Neuron {
 	 */
 	public void randomizeWeights() {
 		for (Connection connection : connections) {
-			connection.weight = (float)Math.random() * 2f - 1f;
+			connection.weight = (float)Math.random() * 8f - 4f;
 		}
 	}
 	
 	/**
-	 * Changes the value of the connections with the given value.
-	 * @param value the mutate value. Should be between {@code 0.0} and {@code 1.0}.
+	 * Changes the value of about 30% of the connections.
 	 */
-	public void mutate(float value) {
+	public void mutate() {
 		for (Connection connection : connections) {
-			if (Math.random() > value) {
-				if (NEvoSim.rand.nextBoolean()) connection.weight += value;
-				else connection.weight -= value;
+			if (Math.random() > 0.3) {
+				if (NEvoSim.rand.nextBoolean()) connection.weight += 0.1f;
+				else connection.weight -= 0.1f;
 			}
 		}
 	}
