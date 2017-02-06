@@ -25,16 +25,6 @@ public class WorkingNeuron extends Neuron {
 	}
 	
 	/**
-	 * Generates a new working neuron with the given database.
-	 * @param database The database to load
-	 * @param hidden Whether the working neuron is hidden
-	 */
-	public WorkingNeuron(String[] database, boolean hidden) {
-		this.hidden = hidden;
-		load(database);
-	}
-	
-	/**
 	 * Adds a connection with the given neuron and weight.
 	 * @param n The neuron to be connected
 	 * @param weight The weight of the connection
@@ -66,7 +56,7 @@ public class WorkingNeuron extends Neuron {
 	}
 	
 	@Override
-	public float getValue() {
+	public synchronized float getValue() {
 		if (value == -2) {
 			calculate(); // re-calculate the value if it is invalid
 		}
@@ -77,8 +67,8 @@ public class WorkingNeuron extends Neuron {
 	 * Returns the value as a boolean.
 	 * @return {@code true} if the value is more than {@code 0.1} or less than {@code -0.1}
 	 */
-	public boolean getValueBool() {
-		return getValue() > 0.1 || getValue() < -0.1;
+	public synchronized boolean getValueBool() {
+		return getValue() > 0;
 	}
 
 	/**
@@ -113,7 +103,7 @@ public class WorkingNeuron extends Neuron {
 	 */
 	public void randomizeWeights() {
 		for (Connection connection : connections) {
-			connection.weight = (float)Math.random() * 8f - 4f;
+			connection.weight = (float)Math.random() * 0.2f - 0.1f;
 		}
 	}
 	

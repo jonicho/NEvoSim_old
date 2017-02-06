@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Disposable;
  * @author Jonas Keller
  *
  */
-public class SimThread extends Thread implements Disposable{
+public class SimThread extends Thread implements Disposable {
 
 	public static ArrayList<Creature> creatures = new ArrayList<Creature>();
 	public static World world = new World();
@@ -23,6 +23,10 @@ public class SimThread extends Thread implements Disposable{
 	private ArrayList<Float> spss = new ArrayList<Float>();
 	private long nanoTimeBegin;
 	private long nanoTimeEnd;
+	
+	public SimThread() {
+		super("SimThread");
+	}
 	
 	@Override
 	public void run() {

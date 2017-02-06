@@ -23,11 +23,19 @@ public class Overlay implements Disposable {
 	private int backgroundHeight = 150;
 	private int backgroundWidth = 300;
 	
+	private Pixmap creatureInfoMap;
+	private Texture creatureInfoTex;
+	private int creatureInfoWidth = 500;
+	private int creatureInfoHeight = 600;
+	private int creatureNetworkHeight = (int) (creatureInfoHeight * 0.8);
+	
 	public Overlay() {
 		createBackground();
 		font = new BitmapFont(Gdx.files.internal("assets/fonts/font.fnt"));
 		font.setColor(Color.WHITE);
 		font.getData().setScale(0.2f);
+		creatureInfoMap = new Pixmap(creatureInfoWidth, creatureInfoHeight, Format.RGBA8888);
+		creatureInfoTex = new Texture(creatureInfoMap);
 	}
 	
 	/**
@@ -38,6 +46,18 @@ public class Overlay implements Disposable {
 		updateText();
 		batch.draw(background, -NEvoSim.width/2, NEvoSim.height/2 - backgroundHeight, backgroundWidth, backgroundHeight);
 		font.draw(batch, text, -NEvoSim.width/2 + 10, NEvoSim.height/2 - 10);
+		
+		if (NEvoSim.selectedCreature != null) {
+			creatureInfoMap = new Pixmap(creatureInfoWidth, creatureInfoHeight, Format.RGBA8888);
+			creatureInfoMap.setColor(0.2f, 0.2f, 0.2f, 0.7f);
+			creatureInfoMap.fill();
+			String infoText = NEvoSim.selectedCreature.drawInfo(creatureInfoMap, creatureNetworkHeight);
+			creatureInfoTex.dispose();
+			creatureInfoTex = new Texture(creatureInfoMap);
+			batch.draw(creatureInfoTex, NEvoSim.width/2 - creatureInfoWidth, NEvoSim.height/2 - creatureInfoHeight);
+			creatureInfoMap.dispose();
+			font.draw(batch, infoText, NEvoSim.width/2 - creatureInfoWidth, NEvoSim.height/2 - creatureNetworkHeight);
+		}
 	}
 	
 	/**

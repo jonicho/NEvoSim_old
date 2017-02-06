@@ -28,12 +28,12 @@ public class InputNeuron extends Neuron {
 	/**
 	 * Sets the value of the neuron with a boolean.
 	 * If {@code value} is {@code true} the value is set to {@code 1}.
-	 * If {@code value} is {@code false} the value is set to {@code -1}
+	 * If {@code value} is {@code false} the value is set to {@code 0}
 	 * @param value the value
 	 */
 	public void setValue(boolean value) {
 		if (value) this.value = 1;
-		else this.value = -1;
+		else this.value = 0;
 	}
 	
 	/**

@@ -38,10 +38,13 @@ public class NEvoSim extends ApplicationAdapter {
 	public static float year = 0;
 	public static boolean save;
 	public static SimThread simThread;
+	public static Input input;
 	public static ArrayList<Creature> deadCreatures = new ArrayList<Creature>();
 	public static File file;
 	public static boolean showOverlay = true;
 	public static boolean showAttackIndicator = true;
+	public static Creature selectedCreature;
+	private float siteDifference;
 	
 	public NEvoSim(File file) {
 		NEvoSim.file = file;
@@ -55,7 +58,8 @@ public class NEvoSim extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		cameraOverlay = new OrthographicCamera(1000, 1000);
 		batchOverlay = new SpriteBatch();
-		Gdx.input.setInputProcessor(new Input());
+		input = new Input();
+		Gdx.input.setInputProcessor(input);
 		simThread.setPriority(Thread.MIN_PRIORITY);
 		simThread.start();
 		camera.zoom = 1;
@@ -63,7 +67,7 @@ public class NEvoSim extends ApplicationAdapter {
 		cameraOverlay.zoom = 1;
 		cameraOverlay.update();
 		batch.setProjectionMatrix(camera.combined);
-		batchOverlay.setProjectionMatrix(cameraOverlay.combined);
+//		batchOverlay.setProjectionMatrix(cameraOverlay.combined);
 	}
 	
 	@Override
@@ -78,8 +82,8 @@ public class NEvoSim extends ApplicationAdapter {
 				try {
 					SimThread.creatures.get(i).draw(batch);
 				} catch (Exception e) { // catch exception. Sometimes the Creature dies while it is tried to draw it
+					System.err.println("Draw skipped");
 					e.printStackTrace();
-					System.out.println("Draw skipped");
 				}
 			}
 		}
@@ -93,14 +97,45 @@ public class NEvoSim extends ApplicationAdapter {
 			try {
 				deadCreatures.get(0).dispose();
 			} catch (Exception e) { // catch exception
+				System.err.println("Dispose skipped");
 				e.printStackTrace();
-				System.out.println("Dispose skipped");
 			}
 			deadCreatures.remove(0);
 		}
 		
 		if (!simThread.isAlive()) { // exit if the simThread is not alive anymore
 			Gdx.app.exit();
+		}
+	}
+	
+	
+	/**
+	 * Calculates witch creature was clicked
+	 */
+	private void calculateClickedCreature() {
+		if (pause || true ) {
+			float mouseX = 0;
+			float mouseY = 0;
+			mouseX = (input.mouseX - 500) * zoom + 500 - x;
+			mouseY = (input.mouseY - 500) * zoom + 500 - y;
+			if (siteDifference < 0) {
+				mouseY -= Math.abs(siteDifference/2) * zoom;
+			} else {
+				mouseX -= Math.abs(siteDifference/2) * zoom;
+			}
+			Creature c = null;
+			float distance = 12;
+			for (int i = 0; i < SimThread.creatures.size(); i++) {
+				Creature cr = SimThread.creatures.get(i);
+				float disX = mouseX - cr.getX();
+				float disY = mouseY - cr.getY();
+				float dis = (float) Math.sqrt(Math.pow(disX, 2) + Math.pow(disY, 2));
+				if (dis < distance) {
+					c = cr;
+					distance = dis;
+				}
+			}
+			if (c != null) selectedCreature = c;
 		}
 	}
 	
@@ -132,6 +167,7 @@ public class NEvoSim extends ApplicationAdapter {
 			camera.viewportWidth = 1000;
 			camera.viewportHeight = 1000;
 		}
+		siteDifference = camera.viewportWidth - camera.viewportHeight;
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 	}
@@ -140,8 +176,9 @@ public class NEvoSim extends ApplicationAdapter {
 		
 		private float lastMouseX;
 		private float lastMouseY;
-		private float mouseX;
-		private float mouseY;
+		public float mouseX;
+		public float mouseY;
+		private boolean wasDragged;
 
 		@Override
 		public boolean keyDown(int keycode) {
@@ -166,6 +203,8 @@ public class NEvoSim extends ApplicationAdapter {
 				targetFrameDuration *= 2;
 			} else if (keycode == Keys.A) {
 				showAttackIndicator = !showAttackIndicator;
+			} else if (keycode == Keys.ESCAPE) {
+				selectedCreature = null;
 			}
 			return false;
 		}
@@ -182,24 +221,31 @@ public class NEvoSim extends ApplicationAdapter {
 
 		@Override
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-			mouseX = (int) (width * (screenX / (float)Gdx.graphics.getWidth()) * zoom * zoom * zoom);
-			mouseY = (int) (height * (screenY / (float)Gdx.graphics.getHeight()) * zoom * zoom * zoom);
+			screenY = -screenY + Gdx.graphics.getHeight();
+			mouseX = (int)(width * ((float)screenX / (float)Gdx.graphics.getWidth()));
+			mouseY = (int)(height * ((float)screenY / (float)Gdx.graphics.getHeight()));
 			return false;
 		}
 
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+			if (!wasDragged) {
+				calculateClickedCreature();
+			}
+			wasDragged = false;
 			return false;
 		}
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
+			screenY = -screenY + Gdx.graphics.getHeight();
+			wasDragged = true;
 			lastMouseX = mouseX;
 			lastMouseY = mouseY;
-			mouseX = width * ((float)screenX / (float)Gdx.graphics.getWidth()) * zoom * zoom * zoom;
-			mouseY = height * ((float)screenY / (float)Gdx.graphics.getHeight()) * zoom * zoom * zoom;
-			x -= ((lastMouseX - mouseX)/(zoom * zoom));
-			y += ((lastMouseY - mouseY)/(zoom * zoom));
+			mouseX = width * ((float)screenX / (float)Gdx.graphics.getWidth());
+			mouseY = height * ((float)screenY / (float)Gdx.graphics.getHeight());
+			x -= ((lastMouseX - mouseX));
+			y -= ((lastMouseY - mouseY));
 			
 			return false;
 		}

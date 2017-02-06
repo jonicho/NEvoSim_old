@@ -11,7 +11,7 @@ public class Tile {
 	
 	private TileType type;
 	private float food;
-	public final static float EAT_VALUE = 1;
+	public final static float EAT_VALUE = 1f;
 	
 	/**
 	 * Generates a new Tile with the given type.

@@ -5,8 +5,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Select;
 
 import de.jrk.nevosim.Tile.TileType;
 import de.jrk.nevosim.neuralnetwork.InputNeuron;
@@ -50,7 +52,6 @@ public class Creature implements Disposable {
 	private boolean attack;
 	private boolean isAttacked;
 	private int splits;
-	private float nightCosts;
 
 	private Creature nearestCreature;
 	private float nearestCreatureDistance;
@@ -67,37 +68,37 @@ public class Creature implements Disposable {
 	private boolean textureCreated = false;
 	private boolean canDispose = false;
 	private boolean alive = true;
+	private boolean selected;
 	
 	
-	private static final float COST_MULTIPLIER = 0.01f;
+	private static final float COST_MULTIPLIER = 0.05f;
 	private static final float ATTACK_VALUE = 100;
 	private static final float BODY_SIZE = 6;
 	private static final float FEELER_SIZE = 2;
-	private static final float SLEEP_CHANGE_PROBABILITY = 0.1f;
 	
 	
-	public static final String IN_ONLAND = "in1";
-	public static final String IN_RIGHTFEELERONLAND = "in2";
-	public static final String IN_LEFTFEELERONLAND = "in3";
-	public static final String IN_FOOD = "in4";
-	public static final String IN_ENERGY = "in5";
-	public static final String IN_RIGHTFEELERFOOD = "in6";
-	public static final String IN_LEFTFEELERFOOD = "in7";
-	public static final String IN_AGE = "in8";
-	public static final String IN_MEMORY1 = "in9";
-	public static final String IN_MEMORY2 = "in10";
-	public static final String IN_OSCILLATION = "in11";
-	public static final String IN_GENETICDIFFERENCE = "in12";
-	public static final String IN_ISATTACKED = "in13";
+	public static final String IN_ONLAND = "in_on-land";
+	public static final String IN_RIGHTFEELERONLAND = "in_right-feeler-on-land";
+	public static final String IN_LEFTFEELERONLAND = "in_left-feeler-on-land";
+	public static final String IN_FOOD = "in_food";
+	public static final String IN_ENERGY = "in_energy";
+	public static final String IN_RIGHTFEELERFOOD = "in_right-feeler-food";
+	public static final String IN_LEFTFEELERFOOD = "in_left-feeler-food";
+	public static final String IN_AGE = "in_age";
+	public static final String IN_MEMORY1 = "in_memory-1";
+	public static final String IN_MEMORY2 = "in_memory-2";
+	public static final String IN_OSCILLATION = "in_oscillation";
+	public static final String IN_GENETICDIFFERENCE = "in_geneticdifference";
+	public static final String IN_ISATTACKED = "in_is-attacked";
 
-	public static final String OUT_ROTATE = "out1";
-	public static final String OUT_EAT = "out2";
-	public static final String OUT_MOVE = "out3";
-	public static final String OUT_SPLIT = "out4";
-	public static final String OUT_MEMORY1 = "out5";
-	public static final String OUT_MEMORY2 = "out6";
-	public static final String OUT_OSCILLATION = "out7";
-	public static final String OUT_ATTACK = "out8";
+	public static final String OUT_ROTATE = "out_rotate";
+	public static final String OUT_EAT = "out_eat";
+	public static final String OUT_MOVE = "out_speed";
+	public static final String OUT_SPLIT = "out_split";
+	public static final String OUT_MEMORY1 = "out_memory-1";
+	public static final String OUT_MEMORY2 = "out_memory-2";
+	public static final String OUT_OSCILLATION = "out_oscillation";
+	public static final String OUT_ATTACK = "out_attack";
 	
 	private InputNeuron inRightFeelerOnLand = new InputNeuron(IN_RIGHTFEELERONLAND);
 	private InputNeuron inLeftFeelerOnLand = new InputNeuron(IN_LEFTFEELERONLAND);
@@ -272,6 +273,8 @@ public class Creature implements Disposable {
 	 * @param batch the batch on witch is to be drawn
 	 */
 	public void draw(SpriteBatch batch) {
+		selected = this.equals(NEvoSim.selectedCreature);
+		
 		size = ((energy - 80) / (1 + Math.abs(energy / 100))) / 50;
 		
 		if (!textureCreated) {
@@ -310,6 +313,32 @@ public class Creature implements Disposable {
 		batch.draw(texture, xFeelerLeft - 500f - FEELER_SIZE/2f + NEvoSim.x, 
 							yFeelerLeft - 500f - FEELER_SIZE/2f + NEvoSim.y, 
 							FEELER_SIZE, FEELER_SIZE);
+	}
+	
+	
+	/**
+	 * Draws the information of the creature in the given Pixmap;
+	 * @param map the Pixmap on witch is to be drawn
+	 * @param infoNetworkHeight the height of the neural network
+	 * @return the info String
+	 */
+	public String drawInfo(Pixmap map, int infoNetworkHeight) {
+		infoNetworkHeight = (int) (map.getHeight() * 0.8);
+		brain.draw(map, 0, 0, map.getWidth(), infoNetworkHeight);
+		return createInfoText();
+	}
+	
+	private String createInfoText() {
+		String infoText = "";
+		infoText += " State: ";
+		if (alive) infoText += "alive\n";
+		else infoText += "died\n";
+		infoText += " Energy: " + energy + "\n";
+		infoText += " Generation: " + generation + "\n";
+		infoText += " Age: " + age + "\n";
+		infoText += " Speed: " + speed + "\n";
+		infoText += " Direction: " + direction + "\n";
+		return infoText;
 	}
 	
 	/**
@@ -356,7 +385,7 @@ public class Creature implements Disposable {
 	}
 	
 	/**
-	 * Updates the creatures.
+	 * Updates the creature.
 	 */
 	public void update() {
 		if (outAttack.getValueBool()) {
@@ -455,7 +484,7 @@ public class Creature implements Disposable {
 		
 		inIsAttacked.setValue(isAttacked);
 		
-		inEnergy.setValue(energy);
+		inEnergy.setValue(energy/10);
 		inAge.setValue(age);
 		inMemory1.setValue(outMemory1.getValue());
 		inMemory2.setValue(outMemory2.getValue());
@@ -468,11 +497,11 @@ public class Creature implements Disposable {
 	 * Calculates the costs and subtracts is from the energy.
 	 */
 	private void calculateCosts() {
-		energy -= speed * speed * 2 * COST_MULTIPLIER * nightCosts;
-		energy -= Math.pow(outRotate.getValue(), 2) * COST_MULTIPLIER * 100 * nightCosts;
-		energy -= outEat.getValue() * outEat.getValue() * COST_MULTIPLIER * nightCosts;
+		energy -= speed * speed * COST_MULTIPLIER;
+		energy -= Math.pow(outRotate.getValue(), 2) * COST_MULTIPLIER * 100;
+		energy -= outEat.getValue() * outEat.getValue() * COST_MULTIPLIER;
 		if (wantAttack)
-			energy -= 1 * COST_MULTIPLIER * nightCosts;
+			energy -= 1 * COST_MULTIPLIER;
 		energy -= age / 10;
 		if (!(xTile >= 0 && xTile < World.world.length && yTile >= 0 && yTile < World.world[0].length && World.world[xTile][yTile].getType() == TileType.land)) {
 			energy -= 4;
