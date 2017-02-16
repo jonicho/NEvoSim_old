@@ -6,8 +6,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.badlogic.gdx.Gdx;
-
 /**
  * This is to save and load the simulation.
  * It uses the .nessf (<b>NE</b>vo<b>S</b>im <b>s</b>ave <b>f</b>ile) file format.
@@ -21,7 +19,7 @@ public class SaveLoad {
 	public static final String FILE_EXTENSION = ".nessf";
 	
 	public SaveLoad() {
-		this.file = NEvoSim.file;
+		this.file = Main.file;
 	}
 	
 	/**
@@ -42,17 +40,20 @@ public class SaveLoad {
 		}
 		if (fcs == JFileChooser.APPROVE_OPTION) {
 			dataSave = "";
-			dataSave += NEvoSim.year + ";\n" + SimThread.world.save();
+			dataSave += Main.year + ";\n" + SimThread.world.save();
 			for (Creature creature : SimThread.creatures) {
 				dataSave += ";\n" + creature.save();
 			}
-			Gdx.files.absolute(file.getPath()).writeString(dataSave, false);
+			//Gdx.files.absolute(file.getPath()).writeString(dataSave, false); TODO
 		} else if (quit) {
 			int option = JOptionPane.showConfirmDialog(null, "Really quit without saving?", "Attention!", 
-					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if (option != JOptionPane.OK_OPTION) {
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (option == JOptionPane.CANCEL_OPTION) {
+				return;
+			} else if (option != JOptionPane.OK_OPTION) {
 				save(quit);
 			}
+			System.exit(0);
 		}
 	}
 	
@@ -62,10 +63,10 @@ public class SaveLoad {
 	public void load() {
 		if (file != null) {
 			try {
-				String string = Gdx.files.absolute(file.getPath()).readString();
-				string.replaceAll("\n", "");
-				databaseLoad = string.split(";");
-				NEvoSim.year = Float.parseFloat(databaseLoad[0]);
+				//String string = Gdx.files.absolute(file.getPath()).readString(); TODO
+//				string.replaceAll("\n", "");
+//				databaseLoad = string.split(";");
+				Main.year = Float.parseFloat(databaseLoad[0]);
 				SimThread.creatures.removeAll(SimThread.creatures);
 				SimThread.world.load(databaseLoad[1]);
 				for (int i = 0; i < databaseLoad.length - 2; i++) {

@@ -1,7 +1,5 @@
 package de.jrk.nevosim;
 
-import com.badlogic.gdx.utils.GdxRuntimeException;
-
 /**
  * A World Tile.
  * @author Jonas Keller
@@ -61,12 +59,9 @@ public class Tile {
 			if (food >= EAT_VALUE) {
 				food -= EAT_VALUE;
 				return EAT_VALUE;
-			} else {
-				return 0;
-			} 
-		} else {
-			throw new GdxRuntimeException("Tile is not land!");
+			}
 		}
+		return 0;
 		
 	}
 	

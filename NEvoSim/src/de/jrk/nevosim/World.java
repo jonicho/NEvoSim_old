@@ -1,11 +1,8 @@
 package de.jrk.nevosim;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import de.jrk.nevosim.Tile.TileType;
 
 /**
@@ -17,8 +14,6 @@ public class World {
 	
 	public static Tile[][] world;
 	private ValueNoise noise;
-	private Pixmap pixmap;
-	private Texture texture;
 	
 	public World() {
 		noise = new ValueNoise();
@@ -29,22 +24,21 @@ public class World {
 	 * Draws the World on the given SpriteBatch.
 	 * @param batch SpriteBatch to draw the World on
 	 */
-	public void draw(SpriteBatch batch) {
-		pixmap.dispose();
-		texture.dispose();
-		pixmap = new Pixmap(world.length, world[0].length, Format.RGBA8888);
+	public void draw(Graphics gr) {
+		// TODO use Graphics
+		BufferedImage img = new BufferedImage(world.length, world[0].length, BufferedImage.TYPE_INT_RGB);
+		Graphics g = img.createGraphics();
 		for (int x = 0; x < world.length; x++) {
 			for (int y = 0; y < world[0].length; y++) {
 				if (world[x][y].getType() == TileType.water) {
-					pixmap.setColor(Color.BLUE);
+					g.setColor(Color.BLUE);
 				} else {
-					pixmap.setColor(1 - (world[x][y].getFood()) / 101, 1, 0, 1);
+					g.setColor(new Color(1 - (world[x][y].getFood()) / 101, 1, 0));
 				}
-				pixmap.drawPixel(x, -y + 99);
+				g.drawRect(x, y, 1, 1);
 			}
 		}
-		texture = new Texture(pixmap);
-		batch.draw(texture, -500 + NEvoSim.x, -500 + NEvoSim.y, 1000, 1000);
+		gr.drawImage(img, 0, 0, (int)Renderer.size, (int)Renderer.size, null);
 	}
 	
 	/**
@@ -128,8 +122,6 @@ public class World {
 				world[x][y] = new Tile(TileType.water);
 			}
 		}
-		pixmap = new Pixmap(world.length, world[0].length, Format.RGBA8888);
-		texture = new Texture(pixmap);
 	}
 	
 	/**

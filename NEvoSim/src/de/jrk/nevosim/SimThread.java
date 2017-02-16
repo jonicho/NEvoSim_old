@@ -1,21 +1,19 @@
 package de.jrk.nevosim;
 
+import java.awt.Color;
 import java.util.ArrayList;
-
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.utils.Disposable;
 
 /**
  * Thread to simulate the creatures and the world.
  * @author Jonas Keller
  *
  */
-public class SimThread extends Thread implements Disposable {
+public class SimThread extends Thread {
 
 	public static ArrayList<Creature> creatures = new ArrayList<Creature>();
 	public static World world = new World();
 	public boolean stop = false;
-	private boolean save = false;
+	public static boolean save = false;
 	private SaveLoad saveLoad = new SaveLoad();
 	public static boolean isStarted = false;
 	public static long nanoFrameDuration;
@@ -36,7 +34,7 @@ public class SimThread extends Thread implements Disposable {
 			long timeBegin = System.currentTimeMillis();
 			nanoTimeBegin = System.nanoTime();
 			
-			if (!NEvoSim.pause) {
+			if (!Main.pause) {
 				world.update();
 				if (creatures.size() > 0) {
 					calculateNearestCreatures();
@@ -51,16 +49,16 @@ public class SimThread extends Thread implements Disposable {
 				
 				if (creatures.size() < 10 || Math.random() < 0.01) {
 					creatures.add(new Creature(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1), 
-							(float) Math.random() * 1000, (float) Math.random() * 1000, true));
+							(float) Math.random(), (float) Math.random(), true));
 				}
 
-				NEvoSim.year += 0.0005f;
+				Main.year += 0.0005f;
 			}
 			
 			long timeEnd = System.currentTimeMillis();
-			if ((!NEvoSim.fastForward || NEvoSim.pause) && NEvoSim.targetFrameDuration - (timeEnd - timeBegin) > 0) {
+			if ((!Main.fastForward || Main.pause) && Renderer.targetFrameDuration - (timeEnd - timeBegin) > 0) {
 				try {
-					Thread.sleep(NEvoSim.targetFrameDuration - (timeEnd - timeBegin));
+					Thread.sleep(Renderer.targetFrameDuration - (timeEnd - timeBegin));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -70,9 +68,9 @@ public class SimThread extends Thread implements Disposable {
 			
 			calculateSps();
 			
-			if (NEvoSim.save) {
+			if (Main.save) {
 				saveLoad.save(false);
-				NEvoSim.save = !NEvoSim.save;
+				Main.save = !Main.save;
 			}
 			if (save) {
 				saveLoad.save(true);
@@ -80,16 +78,7 @@ public class SimThread extends Thread implements Disposable {
 			}
 		}
 	}
-
-	public void dispose() {
-		save = true;
-		try {
-			join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
+	
 	/**
 	 * Calculate the nearest creature of each creature and gives it to the creature.
 	 */
@@ -106,17 +95,17 @@ public class SimThread extends Thread implements Disposable {
 					Creature creatureA = creatures.get(i);
 					Creature creatureB = creatures.get(j);
 					
-					float disX = creatureA.getX() - creatureB.getX();
-					float disY = creatureA.getY() - creatureB.getY();
+					double disX = creatureA.getX() - creatureB.getX();
+					double disY = creatureA.getY() - creatureB.getY();
 					
 					if (disX < 30 && disY < 30) {
-						float rightFeelerDisX = creatureA.getxFeelerRight() - creatureB.getX();
-						float rightFeelerDisY = creatureA.getyFeelerRight() - creatureB.getY();
-						float rightFeelerDis = (float) Math.sqrt(Math.pow(rightFeelerDisX, 2) + Math.pow(rightFeelerDisY, 2));
+						double rightFeelerDisX = creatureA.getxFeelerRight() - creatureB.getX();
+						double rightFeelerDisY = creatureA.getyFeelerRight() - creatureB.getY();
+						double rightFeelerDis = (float) Math.sqrt(Math.pow(rightFeelerDisX, 2) + Math.pow(rightFeelerDisY, 2));
 
-						float leftFeelerDisX = creatureA.getxFeelerLeft() - creatureB.getX();
-						float leftFeelerDisY = creatureA.getyFeelerLeft() - creatureB.getY();
-						float leftFeelerDis = (float) Math.sqrt(Math.pow(leftFeelerDisX, 2) + Math.pow(leftFeelerDisY, 2));
+						double leftFeelerDisX = creatureA.getxFeelerLeft() - creatureB.getX();
+						double leftFeelerDisY = creatureA.getyFeelerLeft() - creatureB.getY();
+						double leftFeelerDis = (float) Math.sqrt(Math.pow(leftFeelerDisX, 2) + Math.pow(leftFeelerDisY, 2));
 
 						if (rightFeelerDis < 4 && creatureA.getNearestCreatureDistance() > rightFeelerDis) {
 							creatureA.setNearestCreature(creatureB);
@@ -139,7 +128,7 @@ public class SimThread extends Thread implements Disposable {
 	private void calculateSps() {
 		nanoFrameDuration = nanoTimeEnd - nanoTimeBegin;
 		float sps = 0;
-		if (!NEvoSim.pause) {
+		if (!Main.pause) {
 			if (nanoFrameDuration != 0) {
 				sps = 1f / ((float) nanoFrameDuration / 1000000000);
 			}

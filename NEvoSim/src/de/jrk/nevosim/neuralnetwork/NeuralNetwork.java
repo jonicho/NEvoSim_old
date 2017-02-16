@@ -1,9 +1,6 @@
 package de.jrk.nevosim.neuralnetwork;
 
 import java.util.ArrayList;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.math.Vector2;
 
 /**
  * A neural network with one input layer, one hidden layer and one output layer.
@@ -135,79 +132,79 @@ public class NeuralNetwork {
 		}
 	}
 	
-	
-	/**
-	 * Draws the neural network on the given Pixmap.
-	 * @param map the Pixmap
-	 * @param x x
-	 * @param y y
-	 * @param width width
-	 * @param height height
-	 */
-	public void draw(Pixmap map, int x, int y, int width, int height) {
-		int inpDistance = height / inputNeurons.size();
-		int hidDistance = height / hiddenNeurons.size();
-		int outDistance = height / outputNeurons.size();
-		int layDistance = width / 4;
-		drawInputLayer(layDistance, y, inpDistance, map);
-		drawWorkingLayer(hiddenNeurons, layDistance * 2, y, hidDistance, map);
-		drawWorkingLayer(outputNeurons, layDistance * 3, y, outDistance, map);
-	}
-	
-	
-	private void drawInputLayer(int xLayer, int y, int distance, Pixmap map) {
-		float highestValue = 0;
-		for (InputNeuron in : inputNeurons) {
-			float value = Math.abs(in.getValue());
-			if (value > highestValue) highestValue = value;
-		}
-		
-		for (int i = 0; i < inputNeurons.size(); i++) {
-			int yI = (int) (distance * (i + 0.5f)) + y;
-			float inpValue = inputNeurons.get(i).getValue();
-			if (inpValue < 0) {
-				map.setColor(1, 0, 0, 1);
-			} else {
-				map.setColor(0, 1, 0, 1);
-			}
-			inpValue = Math.abs(inpValue);
-			map.fillCircle(xLayer, yI, (int) (20f * inpValue / (1 + inpValue)));
-			inputNeurons.get(i).drawPos = new Vector2(xLayer, yI);
-		}
-	}
-
-	
-	private void drawWorkingLayer(ArrayList<WorkingNeuron> wns, int xLayer, int y, int distance, Pixmap map) {
-		for (int i = 0; i < wns.size(); i++) {
-			int yW = (int) (distance * (i + 0.5f)) + y;
-			float inpValue = wns.get(i).getValue();
-			if (inpValue < 0) {
-				map.setColor(1, 0, 0, 1);
-			} else {
-				map.setColor(0, 1, 0, 1);
-			}
-			inpValue = Math.abs(inpValue);
-			map.fillCircle(xLayer, yW, (int) (20f * inpValue / (1 + inpValue)));
-			wns.get(i).drawPos = new Vector2(xLayer, yW);
-		}
-		drawConnections(wns, map);
-	}
-
-	
-	private void drawConnections(ArrayList<WorkingNeuron> wns, Pixmap map) {
-		float strongestConnection = getStrongestConnection(wns);
-		for (WorkingNeuron wn : wns) {
-			for (Connection c : wn.getConnections()) {
-				float weight = c.weight;
-				if (weight < 0) {
-					map.setColor(new Color(0, 1, 0, Math.abs(c.weight) / strongestConnection).clamp());
-				} else {
-					map.setColor(new Color(1, 0, 0, Math.abs(c.weight) / strongestConnection).clamp());
-				}
-				map.drawLine((int) wn.drawPos.x, (int) wn.drawPos.y, (int) c.entryNeuron.drawPos.x, (int) c.entryNeuron.drawPos.y);
-			}
-		}
-	}
+// TODO re-implement draw methods
+//	/**
+//	 * Draws the neural network on the given Pixmap.
+//	 * @param map the Pixmap
+//	 * @param x x
+//	 * @param y y
+//	 * @param width width
+//	 * @param height height
+//	 */
+//	public void draw(Pixmap map, int x, int y, int width, int height) {
+//		int inpDistance = height / inputNeurons.size();
+//		int hidDistance = height / hiddenNeurons.size();
+//		int outDistance = height / outputNeurons.size();
+//		int layDistance = width / 4;
+//		drawInputLayer(layDistance, y, inpDistance, map);
+//		drawWorkingLayer(hiddenNeurons, layDistance * 2, y, hidDistance, map);
+//		drawWorkingLayer(outputNeurons, layDistance * 3, y, outDistance, map);
+//	}
+//	
+//	
+//	private void drawInputLayer(int xLayer, int y, int distance, Pixmap map) {
+//		float highestValue = 0;
+//		for (InputNeuron in : inputNeurons) {
+//			float value = Math.abs(in.getValue());
+//			if (value > highestValue) highestValue = value;
+//		}
+//		
+//		for (int i = 0; i < inputNeurons.size(); i++) {
+//			int yI = (int) (distance * (i + 0.5f)) + y;
+//			float inpValue = inputNeurons.get(i).getValue();
+//			if (inpValue < 0) {
+//				map.setColor(1, 0, 0, 1);
+//			} else {
+//				map.setColor(0, 1, 0, 1);
+//			}
+//			inpValue = Math.abs(inpValue);
+//			map.fillCircle(xLayer, yI, (int) (20f * inpValue / (1 + inpValue)));
+//			inputNeurons.get(i).drawPos = new Vector2(xLayer, yI);
+//		}
+//	}
+//
+//	
+//	private void drawWorkingLayer(ArrayList<WorkingNeuron> wns, int xLayer, int y, int distance, Pixmap map) {
+//		for (int i = 0; i < wns.size(); i++) {
+//			int yW = (int) (distance * (i + 0.5f)) + y;
+//			float inpValue = wns.get(i).getValue();
+//			if (inpValue < 0) {
+//				map.setColor(1, 0, 0, 1);
+//			} else {
+//				map.setColor(0, 1, 0, 1);
+//			}
+//			inpValue = Math.abs(inpValue);
+//			map.fillCircle(xLayer, yW, (int) (20f * inpValue / (1 + inpValue)));
+//			wns.get(i).drawPos = new Vector2(xLayer, yW);
+//		}
+//		drawConnections(wns, map);
+//	}
+//
+//	
+//	private void drawConnections(ArrayList<WorkingNeuron> wns, Pixmap map) {
+//		float strongestConnection = getStrongestConnection(wns);
+//		for (WorkingNeuron wn : wns) {
+//			for (Connection c : wn.getConnections()) {
+//				float weight = c.weight;
+//				if (weight < 0) {
+//					map.setColor(new Color(0, 1, 0, Math.abs(c.weight) / strongestConnection).clamp());
+//				} else {
+//					map.setColor(new Color(1, 0, 0, Math.abs(c.weight) / strongestConnection).clamp());
+//				}
+//				map.drawLine((int) wn.drawPos.x, (int) wn.drawPos.y, (int) c.entryNeuron.drawPos.x, (int) c.entryNeuron.drawPos.y);
+//			}
+//		}
+//	}
 
 	
 	private float getStrongestConnection(ArrayList<WorkingNeuron> workingNeurons) {

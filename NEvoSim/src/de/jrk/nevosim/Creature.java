@@ -1,14 +1,8 @@
 package de.jrk.nevosim;
 
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.Select;
+import java.awt.Color;
+import java.awt.Graphics;
 
 import de.jrk.nevosim.Tile.TileType;
 import de.jrk.nevosim.neuralnetwork.InputNeuron;
@@ -21,14 +15,14 @@ import de.jrk.nevosim.neuralnetwork.WorkingNeuron;
  * @author Jonas Keller
  *
  */
-public class Creature implements Disposable {
+public class Creature {
 	
-	private float x;
-	private float y;
-	private float xFeelerRight;
-	private float yFeelerRight;
-	private float xFeelerLeft;
-	private float yFeelerLeft;
+	private double x;
+	private double y;
+	private double xFeelerRight;
+	private double yFeelerRight;
+	private double xFeelerLeft;
+	private double yFeelerLeft;
 	
 	private int xTile;
 	private int yTile;
@@ -39,7 +33,7 @@ public class Creature implements Disposable {
 	
 	private float speed;
 	private float feelerDistance;
-	private float size;
+	private double size;
 	private float direction;
 	
 	private float energy;
@@ -54,14 +48,10 @@ public class Creature implements Disposable {
 	private int splits;
 
 	private Creature nearestCreature;
-	private float nearestCreatureDistance;
+	private double nearestCreatureDistance;
 	private float geneticDifference;
 	
 	private Color color;
-	private Texture texture;
-	private Texture wantAttackTexture;
-	private Texture attackTexture;
-	private Texture attackedTexture;
 	
 	private NeuralNetwork brain;
 	
@@ -71,10 +61,10 @@ public class Creature implements Disposable {
 	private boolean selected;
 	
 	
-	private static final float COST_MULTIPLIER = 0.05f;
-	private static final float ATTACK_VALUE = 100;
-	private static final float BODY_SIZE = 6;
-	private static final float FEELER_SIZE = 2;
+	private static final double COST_MULTIPLIER = 0.05f;
+	private static final double ATTACK_VALUE = 100;
+	private static final double BODY_SIZE = 0.1;
+	private static final double FEELER_SIZE = 2;
 	
 	
 	public static final String IN_ONLAND = "in_on-land";
@@ -123,27 +113,27 @@ public class Creature implements Disposable {
 	private WorkingNeuron outOscillation = new WorkingNeuron(IN_OSCILLATION, false);
 	private WorkingNeuron outAttack = new WorkingNeuron(OUT_ATTACK, false);
 	
-	public float getX() {
+	public double getX() {
 		return x;
 	}
 
-	public float getY() {
+	public double getY() {
 		return y;
 	}
 
-	public float getxFeelerRight() {
+	public double getxFeelerRight() {
 		return xFeelerRight;
 	}
 
-	public float getyFeelerRight() {
+	public double getyFeelerRight() {
 		return yFeelerRight;
 	}
 
-	public float getxFeelerLeft() {
+	public double getxFeelerLeft() {
 		return xFeelerLeft;
 	}
 
-	public float getyFeelerLeft() {
+	public double getyFeelerLeft() {
 		return yFeelerLeft;
 	}
 
@@ -163,11 +153,11 @@ public class Creature implements Disposable {
 		this.nearestCreature = nearestCreature;
 	}
 
-	public float getNearestCreatureDistance() {
+	public double getNearestCreatureDistance() {
 		return nearestCreatureDistance;
 	}
 
-	public void setNearestCreatureDistance(float nearestCreatureDistance) {
+	public void setNearestCreatureDistance(double nearestCreatureDistance) {
 		this.nearestCreatureDistance = nearestCreatureDistance;
 	}
 
@@ -194,9 +184,9 @@ public class Creature implements Disposable {
 	 * @param y the x-position
 	 * @param generateBrain whether a brain (neural network) is to be generated
 	 */
-	public Creature(Color color, float x, float y, boolean generateBrain) {
-		yearBorn = NEvoSim.year;
-		this.color = color;
+	public Creature(Color color, double x, double y, boolean generateBrain) {
+		yearBorn = Main.year;
+		this.color = varyColor(color);
 		this.x = x;
 		this.y = y;
 		feelerDistance = 10;
@@ -218,10 +208,7 @@ public class Creature implements Disposable {
 	 * @param energy
 	 */
 	public Creature(Creature motherCreature, float energy) {
-		this(new Color(motherCreature.getColor().r + (float)(Math.random() - 0.5) / 10, 
-					   motherCreature.getColor().g + (float)(Math.random() - 0.5) / 10, 
-					   motherCreature.getColor().b + (float)(Math.random() - 0.5) / 10, 1), 
-					   motherCreature.getX(), motherCreature.getY(), false);
+		this(motherCreature.getColor(),  motherCreature.getX(), motherCreature.getY(), false);
 		
 		matureAge = motherCreature.getMatureAge() + (float)Math.random() * 0.1f - 0.05f;
 		if (matureAge < 0.2f) {
@@ -268,65 +255,56 @@ public class Creature implements Disposable {
 		calculateFeelerPos();
 	}
 	
+	private Color varyColor(Color c) {
+		int r = (int) (c.getRed() + Math.random() * 20);
+		int g = (int) (c.getGreen() + Math.random() * 20);
+		int b = (int) (c.getBlue() + Math.random() * 20);
+		r = r < 0 ? 0 : r;
+		r = r > 255 ? 255 : r;
+		g = g < 0 ? 0 : g;
+		g = g > 255 ? 255 : g;
+		b = b < 0 ? 0 : b;
+		b = b > 255 ? 255 : b;
+		return new Color(r, g, b);
+	}
+	
 	/**
 	 * Draws the creature on the given SpriteBatch.
 	 * @param batch the batch on witch is to be drawn
 	 */
-	public void draw(SpriteBatch batch) {
-		selected = this.equals(NEvoSim.selectedCreature);
+	public void draw(Graphics g) {
+		selected = this.equals(Main.selectedCreature);
 		
-		size = ((energy - 80) / (1 + Math.abs(energy / 100))) / 50;
+		size = ((energy - 80) / (1 + Math.abs(energy / 100))) / 400 * Renderer.size;
 		
-		if (!textureCreated) {
-			createTextures();
-		}
+		g.setColor(color);
 		
-		if (NEvoSim.showAttackIndicator) {
+		g.fillOval((int)(x * Renderer.size - BODY_SIZE * size/2), 
+				   (int)(y * Renderer.size - BODY_SIZE * size/2), 
+				   (int)(BODY_SIZE * size), (int)(BODY_SIZE * size));
+		
+		// TODO draw attack indicator
+		if (Renderer.showAttackIndicator) {
 			if (isAttacked) {
-				draw(attackedTexture, batch);
 			} else if (attack) {
-				draw(attackTexture, batch);
 			} else if (wantAttack) {
-				draw(wantAttackTexture, batch);
 			} else {
-				draw(texture, batch);
 			} 
-		} else {
-			draw(texture, batch);
 		}
 	}
 	
-	/**
-	 * Draws the creature on the given SpriteBatch with the given texture.
-	 * @param texture the texture
-	 * @param batch the batch on witch is to be drawn
-	 */
-	private void draw(Texture texture, SpriteBatch batch) {
-		batch.draw(texture, x - 500f - BODY_SIZE * size/2 + NEvoSim.x, 
-							y - 500f - BODY_SIZE * size/2 + NEvoSim.y, 
-							BODY_SIZE * size, BODY_SIZE * size);
-		
-		batch.draw(texture, xFeelerRight - 500f - FEELER_SIZE/2f + NEvoSim.x, 
-							yFeelerRight - 500f - FEELER_SIZE/2f + NEvoSim.y, 
-							FEELER_SIZE, FEELER_SIZE);
-		
-		batch.draw(texture, xFeelerLeft - 500f - FEELER_SIZE/2f + NEvoSim.x, 
-							yFeelerLeft - 500f - FEELER_SIZE/2f + NEvoSim.y, 
-							FEELER_SIZE, FEELER_SIZE);
-	}
-	
-	
-	/**
-	 * Draws the information of the creature in the given Pixmap;
-	 * @param map the Pixmap on witch is to be drawn
-	 * @param infoNetworkHeight the height of the neural network
-	 * @return the info String
-	 */
-	public String drawInfo(Pixmap map, int infoNetworkHeight) {
-		infoNetworkHeight = (int) (map.getHeight() * 0.8);
-		brain.draw(map, 0, 0, map.getWidth(), infoNetworkHeight);
-		return createInfoText();
-	}
+//	TODO draw info
+//	/**
+//	 * Draws the information of the creature in the given Pixmap;
+//	 * @param map the Pixmap on witch is to be drawn
+//	 * @param infoNetworkHeight the height of the neural network
+//	 * @return the info String
+//	 */
+//	public String drawInfo(Pixmap map, int infoNetworkHeight) {
+//		infoNetworkHeight = (int) (map.getHeight() * 0.8);
+//		brain.draw(map, 0, 0, map.getWidth(), infoNetworkHeight);
+//		return createInfoText();
+//	}
 	
 	private String createInfoText() {
 		String infoText = "";
@@ -339,49 +317,6 @@ public class Creature implements Disposable {
 		infoText += " Speed: " + speed + "\n";
 		infoText += " Direction: " + direction + "\n";
 		return infoText;
-	}
-	
-	/**
-	 * Creates the four textures.
-	 */
-	private void createTextures() {
-		Pixmap pixmap;
-		pixmap = new Pixmap(220, 220, Format.RGBA8888);
-		pixmap.setColor(Color.BLACK);
-		pixmap.fillCircle(110, 110, 110);
-		pixmap.setColor(color);
-		pixmap.fillCircle(110, 110, 100);
-		texture = new Texture(pixmap);
-		pixmap.dispose();
-
-		pixmap = new Pixmap(220, 220, Format.RGBA8888);
-		pixmap.setColor(Color.BLACK);
-		pixmap.fillCircle(110, 110, 110);
-		pixmap.setColor(color);
-		pixmap.fillCircle(110, 110, 100);
-		pixmap.setColor(Color.RED);
-		pixmap.fillCircle(110, 110, 30);
-		wantAttackTexture = new Texture(pixmap);
-		pixmap.dispose();
-		
-		pixmap = new Pixmap(220, 220, Format.RGBA8888);
-		pixmap.setColor(Color.BLACK);
-		pixmap.fillCircle(110, 110, 110);
-		pixmap.setColor(color);
-		pixmap.fillCircle(110, 110, 100);
-		pixmap.setColor(Color.RED);
-		pixmap.fillCircle(110, 110, 80);
-		attackTexture = new Texture(pixmap);
-		pixmap.dispose();
-		
-		pixmap = new Pixmap(220, 220, Format.RGBA8888);
-		pixmap.setColor(Color.RED);
-		pixmap.fillCircle(110, 110, 110);
-		attackedTexture = new Texture(pixmap);
-		pixmap.dispose();
-		
-		textureCreated = true;
-		canDispose = true;
 	}
 	
 	/**
@@ -409,7 +344,7 @@ public class Creature implements Disposable {
 		} else {
 			attack = false;
 		}
-		speed = outMove.getValue() * outMove.getValue();
+		speed = outMove.getValue() * outMove.getValue() / 1000;
 		direction += outRotate.getValue();
 		if (direction > 360)
 			direction -= 360;
@@ -428,22 +363,21 @@ public class Creature implements Disposable {
 		x += Math.sin(Math.toRadians(direction)) * speed;
 		y += Math.cos(Math.toRadians(direction)) * speed;
 		calculateFeelerPos();
-		xTile = (int) (x / 10);
-		yTile = (int) (y / 10);
-		xTileFeelerRight = (int) (xFeelerRight / 10);
-		yTileFeelerRight = (int) (yFeelerRight / 10);
-		xTileFeelerLeft = (int) (xFeelerLeft / 10);
-		yTileFeelerLeft = (int) (yFeelerLeft / 10);
+		xTile = (int) (x * 100);
+		yTile = (int) (y * 100);
+		xTileFeelerRight = (int) (xFeelerRight * 100);
+		yTileFeelerRight = (int) (yFeelerRight * 100);
+		xTileFeelerLeft = (int) (xFeelerLeft * 100);
+		yTileFeelerLeft = (int) (yFeelerLeft * 100);
 		
 		calculateCosts();
 		
 		if (energy < 100) {
 			alive = false;
-			NEvoSim.deadCreatures.add(this);
 			SimThread.creatures.remove(this);
 		}
 		
-		age = NEvoSim.year - yearBorn;
+		age = Main.year - yearBorn;
 		
 		isAttacked = false;
 		
@@ -566,15 +500,6 @@ public class Creature implements Disposable {
 		yFeelerLeft = (float) (y + Math.cos(Math.toRadians(direction - 15)) * feelerDistance);
 	}
 	
-	public void dispose() {
-		if (canDispose) {
-			texture.dispose();
-			wantAttackTexture.dispose();
-			attackTexture.dispose();
-			attackedTexture.dispose();
-		}
-	}
-	
 	/**
 	 * Saves this creature.
 	 * @return the save data
@@ -582,7 +507,7 @@ public class Creature implements Disposable {
 	public String save() {
 		String data = "";
 		data += x + "," + y + "," + direction + "," + energy + "," + yearBorn + "," 
-		+ color.r + "," + color.g + "," + color.b + "," + matureAge + "," + brain.save();
+		+ color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "," + matureAge + "," + brain.save();
 		return data;
 	}
 	
@@ -612,13 +537,13 @@ public class Creature implements Disposable {
 	 */
 	private void calculateGeneticDifference() {
 		if (nearestCreature != null) {
-			float rDifference = nearestCreature.getColor().r - color.r;
+			float rDifference = nearestCreature.getColor().getRed() - color.getRed();
 			if (rDifference < 0)
 				rDifference = -rDifference;
-			float gDifference = nearestCreature.getColor().g - color.g;
+			float gDifference = nearestCreature.getColor().getGreen() - color.getGreen();
 			if (gDifference < 0)
 				gDifference = -gDifference;
-			float bDifference = nearestCreature.getColor().b - color.b;
+			float bDifference = nearestCreature.getColor().getBlue() - color.getBlue();
 			if (bDifference < 0)
 				bDifference = -bDifference;
 			geneticDifference = (rDifference + gDifference + bDifference) / 3;

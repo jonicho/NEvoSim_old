@@ -1,6 +1,6 @@
 package de.jrk.nevosim.neuralnetwork;
 
-import com.badlogic.gdx.math.Vector2;
+import java.util.Vector;
 
 /**
  * A neuron with a value.
@@ -12,7 +12,7 @@ abstract class Neuron {
 
 	protected float value = -2;
 	protected String name;
-	public Vector2 drawPos;
+	public Vector drawPos;
 	
 	public abstract float getValue();
 	

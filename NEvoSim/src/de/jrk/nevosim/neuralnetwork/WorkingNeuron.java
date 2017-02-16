@@ -2,7 +2,8 @@ package de.jrk.nevosim.neuralnetwork;
 
 import java.util.ArrayList;
 
-import de.jrk.nevosim.NEvoSim;
+import de.jrk.nevosim.Main;
+import de.jrk.nevosim.Renderer;
 
 /**
  * A neuron that processes the values of all connections.
@@ -113,7 +114,7 @@ public class WorkingNeuron extends Neuron {
 	public void mutate() {
 		for (Connection connection : connections) {
 			if (Math.random() > 0.3) {
-				if (NEvoSim.rand.nextBoolean()) connection.weight += 0.1f;
+				if (Main.rand.nextBoolean()) connection.weight += 0.1f;
 				else connection.weight -= 0.1f;
 			}
 		}
