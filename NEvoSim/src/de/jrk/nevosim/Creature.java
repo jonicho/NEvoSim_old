@@ -201,7 +201,7 @@ public class Creature {
 		if (generateBrain) generateBrain(true);
 		
 		matureAge = Math.random() + 0.2f;
-		creatateImage();
+		createImage();
 	}
 	
 	/**
@@ -306,7 +306,7 @@ public class Creature {
 		}
 	}
 	
-	private void creatateImage() {
+	private void createImage() {
 		image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = image.getGraphics();
 		g.setColor(Color.BLACK);
