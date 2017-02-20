@@ -21,6 +21,7 @@ public class SimThread extends Thread {
 	private ArrayList<Float> spss = new ArrayList<Float>();
 	private long nanoTimeBegin;
 	private long nanoTimeEnd;
+	public static int targetFrameDuration = 16;
 	
 	public SimThread() {
 		super("SimThread");
@@ -46,19 +47,17 @@ public class SimThread extends Thread {
 						}
 					}
 				}
-				
 				if (creatures.size() < 10 || Math.random() < 0.01) {
 					creatures.add(new Creature(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1), 
 							(float) Math.random(), (float) Math.random(), true));
 				}
-
 				Main.year += 0.0005f;
 			}
 			
 			long timeEnd = System.currentTimeMillis();
-			if ((!Main.fastForward || Main.pause) && Renderer.targetFrameDuration - (timeEnd - timeBegin) > 0) {
+			if ((!Main.fastForward || Main.pause) && targetFrameDuration - (timeEnd - timeBegin) > 0) {
 				try {
-					Thread.sleep(Renderer.targetFrameDuration - (timeEnd - timeBegin));
+					Thread.sleep(targetFrameDuration - (timeEnd - timeBegin));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -73,8 +72,11 @@ public class SimThread extends Thread {
 				Main.save = !Main.save;
 			}
 			if (save) {
-				saveLoad.save(true);
-				stop = true;
+				if (saveLoad.save(true)) {
+					System.exit(0);
+					stop = true;
+				}
+				save = false;
 			}
 		}
 	}
@@ -85,7 +87,7 @@ public class SimThread extends Thread {
 	private void calculateNearestCreatures() {
 		for (int i = 0; i < creatures.size(); i++) {
 			creatures.get(i).setNearestCreature(null);
-			creatures.get(i).setNearestCreatureDistance(Float.MAX_VALUE);
+			creatures.get(i).setNearestCreatureDistance(Integer.MAX_VALUE);
 		}
 		
 		for (int i = 0; i < creatures.size(); i++) {
@@ -98,7 +100,7 @@ public class SimThread extends Thread {
 					double disX = creatureA.getX() - creatureB.getX();
 					double disY = creatureA.getY() - creatureB.getY();
 					
-					if (disX < 30 && disY < 30) {
+					if (disX < 0.03 && disY < 0.03) {
 						double rightFeelerDisX = creatureA.getxFeelerRight() - creatureB.getX();
 						double rightFeelerDisY = creatureA.getyFeelerRight() - creatureB.getY();
 						double rightFeelerDis = (float) Math.sqrt(Math.pow(rightFeelerDisX, 2) + Math.pow(rightFeelerDisY, 2));
@@ -107,12 +109,12 @@ public class SimThread extends Thread {
 						double leftFeelerDisY = creatureA.getyFeelerLeft() - creatureB.getY();
 						double leftFeelerDis = (float) Math.sqrt(Math.pow(leftFeelerDisX, 2) + Math.pow(leftFeelerDisY, 2));
 
-						if (rightFeelerDis < 4 && creatureA.getNearestCreatureDistance() > rightFeelerDis) {
+						if (rightFeelerDis < 0.004 && creatureA.getNearestCreatureDistance() > rightFeelerDis) {
 							creatureA.setNearestCreature(creatureB);
 							creatureA.setNearestCreatureDistance(rightFeelerDis);
 						}
 
-						if (leftFeelerDis < 4 && creatureA.getNearestCreatureDistance() > leftFeelerDis) {
+						if (leftFeelerDis < 0.004 && creatureA.getNearestCreatureDistance() > leftFeelerDis) {
 							creatureA.setNearestCreature(creatureB);
 							creatureA.setNearestCreatureDistance(leftFeelerDis);
 						}

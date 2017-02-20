@@ -1,6 +1,6 @@
 package de.jrk.nevosim.neuralnetwork;
 
-import java.util.Vector;
+import de.jrk.nevosim.Vector;
 
 /**
  * A neuron with a value.

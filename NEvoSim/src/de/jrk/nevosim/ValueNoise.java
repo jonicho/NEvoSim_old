@@ -14,6 +14,7 @@ public class ValueNoise {
 	}
 	
 	public void generateNoise() {
+		randomseed = (int)(Math.random() * 10000);
 		for (int i = 0; i < world.length; i++) {
 			for (int j = 0; j < world[0].length; j++) {
 				world[i][j] = get(i, j);

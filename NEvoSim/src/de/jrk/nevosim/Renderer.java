@@ -2,6 +2,7 @@ package de.jrk.nevosim;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 /**
  * NEvoSim simulates an evolution with creatures that have neural networks.
@@ -16,8 +17,13 @@ public class Renderer {
 	public static int width;
 	public static int height;
 	public static double size;
-	public static int targetFrameDuration = 16;
 	public static boolean showAttackIndicator = true;
+	public static BufferedImage attackIndicator;
+	
+	public Renderer() {
+		attackIndicator = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+		attackIndicator.getGraphics().fillOval(0, 0, 100, 100);
+	}
 	
 	public void render(Graphics g) {
 		g.setColor(Color.BLUE);

@@ -1,7 +1,9 @@
 package de.jrk.nevosim;
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
@@ -19,7 +21,7 @@ import javax.swing.JToggleButton;
 
 public class Main {
 	
-	private static boolean activated = false;
+	private static boolean activated = true;
 	public static boolean pause = false;
 	public static boolean fastForward = false;
 	public static SimThread simThread;
@@ -30,15 +32,18 @@ public class Main {
 	public static Random rand = new Random();
 	private static Renderer rend = new Renderer();
 	
-	private static JFrame f = new JFrame("NEvoSim");
+	public static JFrame f = new JFrame("NEvoSim");
 	private static JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-	private static JTabbedPane info = new JTabbedPane();
 	private static Screen screen = new Screen();
-	private static InfoScreen infoScreen = new InfoScreen();
+	private static JSplitPane splitPaneGui = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+	private static JPanel menuPanel = new JPanel();
+	private static JTabbedPane infoPane = new JTabbedPane();
 	private static JToggleButton pauseBut = new JToggleButton("Pause");
-	private static JButton saveBut = new JButton("save");
-	private static JPanel options = new JPanel(new FlowLayout());
+	private static JButton saveBut = new JButton("Save");
 	private static JToggleButton fastBut = new JToggleButton("Fast");
+	private static JLabel infoLabel = new JLabel();
+	private static JPanel butPanel = new JPanel();
+	private static CreatureInfo creatureInfo = new CreatureInfo();
 	
 	public static void init() {
 		simThread = new SimThread();
@@ -51,6 +56,7 @@ public class Main {
 		f.addKeyListener(new Input());
 		f.setVisible(true);
 		f.setSize(800, 600);
+		f.setMinimumSize(new Dimension(800, 600));
 		f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		f.addWindowListener(new WindowListenerImpl());
 		f.setLocationRelativeTo(null);
@@ -58,42 +64,86 @@ public class Main {
 		pauseBut.addActionListener(e -> {pause = !pause;});
 		saveBut.addActionListener(e -> {save = true;});
 		fastBut.addActionListener(e -> {fastForward = !fastForward;});
-
-		options.add(pauseBut);
-		options.add(saveBut);
-		options.add(fastBut);
 		
-		info.addTab("Options", options);
-		info.addTab("Creature Info", infoScreen);
+		menuPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 		
-		splitPane.add(screen);
-		splitPane.add(info);
-		f.add(splitPane);
+		butPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		
+		butPanel.add(pauseBut);
+		butPanel.add(fastBut);
+		butPanel.add(saveBut);
+		
+		menuPanel.add(butPanel);
+		menuPanel.add(infoLabel);
+		
+		infoPane.add("Creature Info", creatureInfo);
+		
+		splitPaneGui.setDividerSize(0);
+		splitPaneGui.setLeftComponent(menuPanel);
+		splitPaneGui.setRightComponent(infoPane);
 		
 		splitPane.setDividerSize(0);
+		splitPane.setLeftComponent(screen);
+		splitPane.setRightComponent(splitPaneGui);
+		
+		f.add(splitPane);
 		
 		// main loop
 		while(true) {
+			infoLabel.setText(generateInfoText());
+			
 			splitPane.setDividerLocation((int)(f.getHeight() < f.getWidth() * 0.7 ? f.getHeight() : f.getWidth() * 0.7));
 			Renderer.width = screen.getWidth();
 			Renderer.height = screen.getHeight();
 			screen.repaint();
+			creatureInfo.draw();
+			
+			if (selectedCreature == null && SimThread.creatures.size() > 0) {
+				selectedCreature = SimThread.creatures.get(0);
+			}
 			
 			if (!simThread.isAlive()) { // exit if the simThread is not alive anymore
 				close();
 			}
 			
 			try {
-				Thread.sleep(10);
+				if (activated) Thread.sleep(10);
+				else Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
+	private static String generateInfoText() {
+		String state;
+		String attIndi;
+		if (Main.pause) {
+			state = "paused";
+		} else if (Main.fastForward) {
+			state = "running (fast)";
+		} else {
+			state = "running";
+		}
+		if (Renderer.showAttackIndicator) {
+			attIndi = "On";
+		} else {
+			attIndi = "Off";
+		}
+		String text = "<html><body>";
+		text += "State: " + state + "<br>";
+		text += "Sps: " + SimThread.stepsPerSecond + "<br>";
+		text += "Attack Indicators: " + attIndi + "<br>";
+		text += "Creatures: " + SimThread.creatures.size() + "<br>";
+		text += "Year: " + (int)Main.year + "<br>";
+		text += "</body></html>";
+		return text;
+	}
+	
 	private static synchronized void close() {
 		System.out.println("Close called!");
 		SimThread.save = true;
+		if (!simThread.isAlive()) System.exit(0);
 	}
 	
 	public static boolean isActivated() {
@@ -107,13 +157,6 @@ public class Main {
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			rend.render(g);
-		}
-	}
-	
-	private static class InfoScreen extends JLabel{
-		@Override
-		protected void paintComponent(Graphics g) {
-			super.paintComponent(g);
 		}
 	}
 	
@@ -148,10 +191,7 @@ public class Main {
 	private static class WindowListenerImpl implements WindowListener {
 
 		@Override
-		public void windowOpened(WindowEvent e) {
-			System.out.println("Opened");
-			splitPane.setDividerLocation(0.5);
-		}
+		public void windowOpened(WindowEvent e) {}
 		
 		@Override
 		public void windowIconified(WindowEvent e) {}
@@ -161,26 +201,20 @@ public class Main {
 		
 		@Override
 		public void windowDeactivated(WindowEvent e) {
-			System.out.println("Deactivated");
 			activated = false;
 		}
 		
 		@Override
 		public void windowClosing(WindowEvent e) {
-			System.out.println("Closing");
 			close();
 		}
 		
 		@Override
-		public void windowClosed(WindowEvent e) {
-			System.out.println("Closed");
-		}
+		public void windowClosed(WindowEvent e) {}
 		
 		@Override
 		public void windowActivated(WindowEvent e) {
-			System.out.println("Activated");
 			activated = true;
-			splitPane.setDividerLocation(0.5);
 		}
 		
 	}

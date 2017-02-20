@@ -1,6 +1,10 @@
 package de.jrk.nevosim;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -26,58 +30,90 @@ public class SaveLoad {
 	 * Saves the simulation.
 	 * Uses a JFileChoose to ask for the path.
 	 * @param quit whether the method is executed on quit.
+	 * @return whether the simulation should be closed
 	 */
-	public void save(boolean quit) {
+	public boolean save(boolean quit) {
+		if (quit) {
+			int o = JOptionPane.showOptionDialog(Main.f, "Save?", "Save?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+			if (o == JOptionPane.CLOSED_OPTION || o == JOptionPane.CANCEL_OPTION) return false;
+			else if (o == JOptionPane.NO_OPTION) return true;
+		}
 		JFileChooser fc = new JFileChooser(file);
 		fc.setDialogTitle("Save");
 		fc.setFileFilter(new FileNameExtensionFilter("NEvoSim Save File", "nessf"));
-		int fcs = fc.showSaveDialog(null);
 		file = fc.getSelectedFile();
 		if (file != null) {
 			if (!file.getPath().endsWith(FILE_EXTENSION)) {
 				file = new File(file.getPath() + FILE_EXTENSION);
 			} 
+		} else return false;
+		dataSave = "";
+		dataSave += Main.year + ";\n" + SimThread.world.save();
+		for (Creature creature : SimThread.creatures) {
+			dataSave += ";\n" + creature.save();
 		}
-		if (fcs == JFileChooser.APPROVE_OPTION) {
-			dataSave = "";
-			dataSave += Main.year + ";\n" + SimThread.world.save();
-			for (Creature creature : SimThread.creatures) {
-				dataSave += ";\n" + creature.save();
-			}
-			//Gdx.files.absolute(file.getPath()).writeString(dataSave, false); TODO
-		} else if (quit) {
-			int option = JOptionPane.showConfirmDialog(null, "Really quit without saving?", "Attention!", 
-					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-			if (option == JOptionPane.CANCEL_OPTION) {
-				return;
-			} else if (option != JOptionPane.OK_OPTION) {
-				save(quit);
-			}
-			System.exit(0);
+		try {
+			FileWriter fw = new FileWriter(file);
+			fw.write(dataSave);
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
 		}
+		if (quit) return true;
+		else return false;
 	}
 	
 	/**
 	 * Loads the simulation.
 	 */
 	public void load() {
-		if (file != null) {
+		int o = JOptionPane.showOptionDialog(Main.f, "Load?", "Load?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+		if (o == JOptionPane.CLOSED_OPTION) System.exit(0);
+		if (o == JOptionPane.YES_OPTION) {
 			try {
-				//String string = Gdx.files.absolute(file.getPath()).readString(); TODO
-//				string.replaceAll("\n", "");
-//				databaseLoad = string.split(";");
-				Main.year = Float.parseFloat(databaseLoad[0]);
-				SimThread.creatures.removeAll(SimThread.creatures);
-				SimThread.world.load(databaseLoad[1]);
-				for (int i = 0; i < databaseLoad.length - 2; i++) {
-					SimThread.creatures.add(new Creature(databaseLoad[i + 2]));
+				JFileChooser fc = new JFileChooser(file);
+				fc.setDialogTitle("Save");
+				fc.setFileFilter(new FileNameExtensionFilter("NEvoSim Save File", "nessf"));
+				int fcs = fc.showOpenDialog(Main.f);
+				file = fc.getSelectedFile();
+				if (fcs == JFileChooser.APPROVE_OPTION && file != null) {
+					FileReader fr = new FileReader(file);
+					BufferedReader br = new BufferedReader(fr);
+					String string = "";
+					boolean finished = false;
+					while (!finished) {
+						String line = br.readLine();
+						System.out.println(line);
+						if (line == null) {
+							finished = true;
+						} else {
+							string += line;
+						}
+					}
+					br.close();
+					fr.close();
+					string.replaceAll("\n", "");
+					databaseLoad = string.split(";");
+					Main.year = Float.parseFloat(databaseLoad[0]);
+					SimThread.creatures.removeAll(SimThread.creatures);
+					SimThread.world.load(databaseLoad[1]);
+					for (int i = 0; i < databaseLoad.length - 2; i++) {
+						SimThread.creatures.add(new Creature(databaseLoad[i + 2]));
+					}
+					Main.f.setTitle("NEvoSim - " + file.getName());
+					Main.f.setVisible(true);
+				} else {
+					System.exit(0);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
+				System.exit(0);
+				return;
 			}
-		} else {
-			file = new File(System.getProperty("user.home"));
-			SimThread.world.generateRandomWorld();
 		}
+		Main.f.setVisible(true);
+		file = new File(System.getProperty("user.home"));
+		SimThread.world.generateRandomWorld();
 	}
 }

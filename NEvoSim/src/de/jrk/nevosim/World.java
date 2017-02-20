@@ -25,7 +25,6 @@ public class World {
 	 * @param batch SpriteBatch to draw the World on
 	 */
 	public void draw(Graphics gr) {
-		// TODO use Graphics
 		BufferedImage img = new BufferedImage(world.length, world[0].length, BufferedImage.TYPE_INT_RGB);
 		Graphics g = img.createGraphics();
 		for (int x = 0; x < world.length; x++) {

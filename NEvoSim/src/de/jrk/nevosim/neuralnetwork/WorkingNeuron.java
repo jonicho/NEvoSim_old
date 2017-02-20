@@ -3,7 +3,6 @@ package de.jrk.nevosim.neuralnetwork;
 import java.util.ArrayList;
 
 import de.jrk.nevosim.Main;
-import de.jrk.nevosim.Renderer;
 
 /**
  * A neuron that processes the values of all connections.

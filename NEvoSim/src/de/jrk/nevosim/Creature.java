@@ -3,6 +3,7 @@ package de.jrk.nevosim;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 import de.jrk.nevosim.Tile.TileType;
 import de.jrk.nevosim.neuralnetwork.InputNeuron;
@@ -32,14 +33,14 @@ public class Creature {
 	private int yTileFeelerLeft;
 	
 	private float speed;
-	private float feelerDistance;
+	private double feelerDistance;
 	private double size;
 	private float direction;
 	
 	private float energy;
 	private float yearBorn;
 	private float age;
-	private float matureAge;
+	private double matureAge;
 	private int generation;
 
 	private boolean wantAttack;
@@ -52,43 +53,43 @@ public class Creature {
 	private float geneticDifference;
 	
 	private Color color;
+	private BufferedImage image;
 	
-	private NeuralNetwork brain;
+	private NeuralNetwork motherBrain;
 	
-	private boolean textureCreated = false;
-	private boolean canDispose = false;
 	private boolean alive = true;
-	private boolean selected;
+	@SuppressWarnings("unused")
+	private boolean selected; //TODO draw selected indicator
 	
 	
-	private static final double COST_MULTIPLIER = 0.05f;
+	private static final double COST_MULTIPLIER = 0.05;
 	private static final double ATTACK_VALUE = 100;
 	private static final double BODY_SIZE = 0.1;
-	private static final double FEELER_SIZE = 2;
+	private static final double FEELER_SIZE = 0.003;
 	
 	
-	public static final String IN_ONLAND = "in_on-land";
-	public static final String IN_RIGHTFEELERONLAND = "in_right-feeler-on-land";
-	public static final String IN_LEFTFEELERONLAND = "in_left-feeler-on-land";
-	public static final String IN_FOOD = "in_food";
-	public static final String IN_ENERGY = "in_energy";
-	public static final String IN_RIGHTFEELERFOOD = "in_right-feeler-food";
-	public static final String IN_LEFTFEELERFOOD = "in_left-feeler-food";
-	public static final String IN_AGE = "in_age";
-	public static final String IN_MEMORY1 = "in_memory-1";
-	public static final String IN_MEMORY2 = "in_memory-2";
-	public static final String IN_OSCILLATION = "in_oscillation";
-	public static final String IN_GENETICDIFFERENCE = "in_geneticdifference";
-	public static final String IN_ISATTACKED = "in_is-attacked";
+	public static final String IN_ONLAND = "in_1";
+	public static final String IN_RIGHTFEELERONLAND = "in_2";
+	public static final String IN_LEFTFEELERONLAND = "in_3";
+	public static final String IN_FOOD = "in_4";
+	public static final String IN_ENERGY = "in_5";
+	public static final String IN_RIGHTFEELERFOOD = "in_6";
+	public static final String IN_LEFTFEELERFOOD = "in_7";
+	public static final String IN_AGE = "in_8";
+	public static final String IN_MEMORY1 = "in_m1";
+	public static final String IN_MEMORY2 = "in_m2";
+	public static final String IN_OSCILLATION = "in_9";
+	public static final String IN_GENETICDIFFERENCE = "in_10";
+	public static final String IN_ISATTACKED = "in_11";
 
-	public static final String OUT_ROTATE = "out_rotate";
-	public static final String OUT_EAT = "out_eat";
-	public static final String OUT_MOVE = "out_speed";
-	public static final String OUT_SPLIT = "out_split";
-	public static final String OUT_MEMORY1 = "out_memory-1";
-	public static final String OUT_MEMORY2 = "out_memory-2";
-	public static final String OUT_OSCILLATION = "out_oscillation";
-	public static final String OUT_ATTACK = "out_attack";
+	public static final String OUT_ROTATE = "out_1";
+	public static final String OUT_EAT = "out_2";
+	public static final String OUT_MOVE = "out_3";
+	public static final String OUT_SPLIT = "out_4";
+	public static final String OUT_MEMORY1 = "out_m1";
+	public static final String OUT_MEMORY2 = "out_m2";
+	public static final String OUT_OSCILLATION = "out_5";
+	public static final String OUT_ATTACK = "out_6";
 	
 	private InputNeuron inRightFeelerOnLand = new InputNeuron(IN_RIGHTFEELERONLAND);
 	private InputNeuron inLeftFeelerOnLand = new InputNeuron(IN_LEFTFEELERONLAND);
@@ -162,14 +163,14 @@ public class Creature {
 	}
 
 	public NeuralNetwork getBrain() {
-		return brain;
+		return motherBrain;
 	}
 	
 	public boolean isAlive() {
 		return alive;
 	}
 	
-	public float getMatureAge() {
+	public double getMatureAge() {
 		return matureAge;
 	}
 	
@@ -186,19 +187,21 @@ public class Creature {
 	 */
 	public Creature(Color color, double x, double y, boolean generateBrain) {
 		yearBorn = Main.year;
-		this.color = varyColor(color);
+		if (color != null) this.color = varyColor(color);
 		this.x = x;
 		this.y = y;
-		feelerDistance = 10;
+		feelerDistance = 0.01;
 		energy = 150;
 		age = 0;
 		direction = (float) (Math.random() * 360);
+		size = ((energy - 80) / (1 + Math.abs(energy / 100))) / 1000 * Renderer.size;
 		calculateFeelerPos();
 		
-		brain = new NeuralNetwork();
+		motherBrain = new NeuralNetwork();
 		if (generateBrain) generateBrain(true);
 		
-		matureAge = (float)Math.random() * 1 + 0.2f;
+		matureAge = Math.random() + 0.2f;
+		creatateImage();
 	}
 	
 	/**
@@ -215,29 +218,29 @@ public class Creature {
 			matureAge = 0.2f;
 		}
 		generation = motherCreature.getGeneration() + 1;
-		brain = motherCreature.getBrain().getClonedNetwork();
+		motherBrain = motherCreature.getBrain().getClonedNetwork();
 		this.energy = energy;
 		
-		inRightFeelerOnLand = brain.getInputNeuron(IN_RIGHTFEELERONLAND);
-		inLeftFeelerOnLand = brain.getInputNeuron(IN_LEFTFEELERONLAND);
-		inOnLand = brain.getInputNeuron(IN_ONLAND);
-		inFood = brain.getInputNeuron(IN_FOOD);
-		inEnergy = brain.getInputNeuron(IN_ENERGY);
-		inRightFeelerFood = brain.getInputNeuron(IN_RIGHTFEELERFOOD);
-		inLeftFeelerFood = brain.getInputNeuron(IN_LEFTFEELERFOOD);
-		inAge = brain.getInputNeuron(IN_AGE);
-		inMemory1 = brain.getInputNeuron(IN_MEMORY1);
-		inMemory2 = brain.getInputNeuron(IN_MEMORY2);
-		inGeneticDifference = brain.getInputNeuron(IN_GENETICDIFFERENCE);
-		inIsAttacked = brain.getInputNeuron(IN_ISATTACKED);
+		inRightFeelerOnLand = motherBrain.getInputNeuron(IN_RIGHTFEELERONLAND);
+		inLeftFeelerOnLand = motherBrain.getInputNeuron(IN_LEFTFEELERONLAND);
+		inOnLand = motherBrain.getInputNeuron(IN_ONLAND);
+		inFood = motherBrain.getInputNeuron(IN_FOOD);
+		inEnergy = motherBrain.getInputNeuron(IN_ENERGY);
+		inRightFeelerFood = motherBrain.getInputNeuron(IN_RIGHTFEELERFOOD);
+		inLeftFeelerFood = motherBrain.getInputNeuron(IN_LEFTFEELERFOOD);
+		inAge = motherBrain.getInputNeuron(IN_AGE);
+		inMemory1 = motherBrain.getInputNeuron(IN_MEMORY1);
+		inMemory2 = motherBrain.getInputNeuron(IN_MEMORY2);
+		inGeneticDifference = motherBrain.getInputNeuron(IN_GENETICDIFFERENCE);
+		inIsAttacked = motherBrain.getInputNeuron(IN_ISATTACKED);
 		
-		outRotate = brain.getOutputNeuron(OUT_ROTATE);
-		outEat = brain.getOutputNeuron(OUT_EAT);
-		outMove = brain.getOutputNeuron(OUT_MOVE);
-		outSplit = brain.getOutputNeuron(OUT_SPLIT);
-		outMemory1 = brain.getOutputNeuron(OUT_MEMORY1);
-		outMemory2 = brain.getOutputNeuron(OUT_MEMORY2);
-		outAttack = brain.getOutputNeuron(OUT_ATTACK);
+		outRotate = motherBrain.getOutputNeuron(OUT_ROTATE);
+		outEat = motherBrain.getOutputNeuron(OUT_EAT);
+		outMove = motherBrain.getOutputNeuron(OUT_MOVE);
+		outSplit = motherBrain.getOutputNeuron(OUT_SPLIT);
+		outMemory1 = motherBrain.getOutputNeuron(OUT_MEMORY1);
+		outMemory2 = motherBrain.getOutputNeuron(OUT_MEMORY2);
+		outAttack = motherBrain.getOutputNeuron(OUT_ATTACK);
 	}
 	
 	/**
@@ -273,15 +276,25 @@ public class Creature {
 	 * @param batch the batch on witch is to be drawn
 	 */
 	public void draw(Graphics g) {
-		selected = this.equals(Main.selectedCreature);
+		selected = this == Main.selectedCreature;
 		
-		size = ((energy - 80) / (1 + Math.abs(energy / 100))) / 400 * Renderer.size;
+		double s = 0.01;
+		
+		size = (((energy - 100) / (1 + Math.abs((energy - 100) * s))) * s + 0.4) * 0.1 * Renderer.size;
 		
 		g.setColor(color);
 		
-		g.fillOval((int)(x * Renderer.size - BODY_SIZE * size/2), 
+		g.drawImage(image, (int)(x * Renderer.size - BODY_SIZE * size/2), 
 				   (int)(y * Renderer.size - BODY_SIZE * size/2), 
-				   (int)(BODY_SIZE * size), (int)(BODY_SIZE * size));
+				   (int)(BODY_SIZE * size), (int)(BODY_SIZE * size), null);
+
+		g.drawImage(image, (int)(xFeelerLeft * Renderer.size - FEELER_SIZE * Renderer.size/2), 
+				   (int)(yFeelerLeft * Renderer.size - FEELER_SIZE * Renderer.size/2), 
+				   (int)(FEELER_SIZE * Renderer.size), (int)(FEELER_SIZE * Renderer.size), null);
+		
+		g.drawImage(image, (int)(xFeelerRight * Renderer.size - FEELER_SIZE * Renderer.size/2), 
+				   (int)(yFeelerRight * Renderer.size - FEELER_SIZE * Renderer.size/2), 
+				   (int)(FEELER_SIZE * Renderer.size), (int)(FEELER_SIZE * Renderer.size), null);
 		
 		// TODO draw attack indicator
 		if (Renderer.showAttackIndicator) {
@@ -293,29 +306,38 @@ public class Creature {
 		}
 	}
 	
-//	TODO draw info
-//	/**
-//	 * Draws the information of the creature in the given Pixmap;
-//	 * @param map the Pixmap on witch is to be drawn
-//	 * @param infoNetworkHeight the height of the neural network
-//	 * @return the info String
-//	 */
-//	public String drawInfo(Pixmap map, int infoNetworkHeight) {
-//		infoNetworkHeight = (int) (map.getHeight() * 0.8);
-//		brain.draw(map, 0, 0, map.getWidth(), infoNetworkHeight);
-//		return createInfoText();
-//	}
+	private void creatateImage() {
+		image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = image.getGraphics();
+		g.setColor(Color.BLACK);
+		g.fillOval(0, 0, 100, 100);
+		g.setColor(color);
+		g.fillOval(10, 10, 80, 80);
+	}
 	
-	private String createInfoText() {
-		String infoText = "";
+	
+	/**
+	 * Draws the neural network of the creature in the given Graphics;
+	 * @param g the Graphics on witch is to be drawn
+	 */
+	public void drawBrain(Graphics g) {
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, CreatureInfo.width, CreatureInfo.height);
+		motherBrain.draw(g);
+	}
+	
+	public String createInfoText() {
+		String infoText = "<html><body>";
 		infoText += " State: ";
-		if (alive) infoText += "alive\n";
-		else infoText += "died\n";
-		infoText += " Energy: " + energy + "\n";
-		infoText += " Generation: " + generation + "\n";
-		infoText += " Age: " + age + "\n";
-		infoText += " Speed: " + speed + "\n";
-		infoText += " Direction: " + direction + "\n";
+		if (alive) infoText += "alive<br>";
+		else infoText += "died<br>";
+		infoText += "Energy: " + energy + "<br>";
+		infoText += "Generation: " + generation + "<br>";
+		infoText += "Age: " + age + "<br>";
+		infoText += "Splits: " + splits + "<br>";
+		infoText += "Speed: " + speed + "<br>";
+		infoText += "Direction: " + direction + "<br>";
+		infoText += "</body></html>";
 		return infoText;
 	}
 	
@@ -344,7 +366,7 @@ public class Creature {
 		} else {
 			attack = false;
 		}
-		speed = outMove.getValue() * outMove.getValue() / 1000;
+		speed = outMove.getValue() * outMove.getValue() / 100;
 		direction += outRotate.getValue();
 		if (direction > 360)
 			direction -= 360;
@@ -382,7 +404,7 @@ public class Creature {
 		isAttacked = false;
 		
 		updateInputs();
-		brain.invalidate();
+		motherBrain.invalidate();
 	}
 	
 	/**
@@ -460,44 +482,44 @@ public class Creature {
 	 * @param randomizeWeights whether the weights are randomized
 	 */
 	private void generateBrain(boolean randomizeWeights) {
-		brain.addInputNeuron(inEnergy);
-		brain.addInputNeuron(inFood);
-		brain.addInputNeuron(inOnLand);
-		brain.addInputNeuron(inRightFeelerOnLand);
-		brain.addInputNeuron(inLeftFeelerOnLand);
-		brain.addInputNeuron(inRightFeelerFood);
-		brain.addInputNeuron(inLeftFeelerFood);
-		brain.addInputNeuron(inAge);
-		brain.addInputNeuron(inMemory1);
-		brain.addInputNeuron(inMemory2);
-		brain.addInputNeuron(inOscillation);
-		brain.addInputNeuron(inGeneticDifference);
-		brain.addInputNeuron(inIsAttacked);
+		motherBrain.addInputNeuron(inEnergy);
+		motherBrain.addInputNeuron(inFood);
+		motherBrain.addInputNeuron(inOnLand);
+		motherBrain.addInputNeuron(inRightFeelerOnLand);
+		motherBrain.addInputNeuron(inLeftFeelerOnLand);
+		motherBrain.addInputNeuron(inRightFeelerFood);
+		motherBrain.addInputNeuron(inLeftFeelerFood);
+		motherBrain.addInputNeuron(inAge);
+		motherBrain.addInputNeuron(inMemory1);
+		motherBrain.addInputNeuron(inMemory2);
+		motherBrain.addInputNeuron(inOscillation);
+		motherBrain.addInputNeuron(inGeneticDifference);
+		motherBrain.addInputNeuron(inIsAttacked);
 		
-		brain.generateHiddenNeurons(10);
+		motherBrain.generateHiddenNeurons(10);
 		
-		brain.addOutputNeuron(outEat);
-		brain.addOutputNeuron(outMove);
-		brain.addOutputNeuron(outRotate);
-		brain.addOutputNeuron(outSplit);
-		brain.addOutputNeuron(outMemory1);
-		brain.addOutputNeuron(outMemory2);
-		brain.addOutputNeuron(outOscillation);
-		brain.addOutputNeuron(outAttack);
+		motherBrain.addOutputNeuron(outEat);
+		motherBrain.addOutputNeuron(outMove);
+		motherBrain.addOutputNeuron(outRotate);
+		motherBrain.addOutputNeuron(outSplit);
+		motherBrain.addOutputNeuron(outMemory1);
+		motherBrain.addOutputNeuron(outMemory2);
+		motherBrain.addOutputNeuron(outOscillation);
+		motherBrain.addOutputNeuron(outAttack);
 		
-		brain.generateFullMesh();
+		motherBrain.generateFullMesh();
 		
-		if (randomizeWeights) brain.randomizeAllWeights();
+		if (randomizeWeights) motherBrain.randomizeAllWeights();
 	}
 	
 	/**
 	 * Calculates the position of the feelers.
 	 */
 	private void calculateFeelerPos() {
-		xFeelerRight = (float) (x + Math.sin(Math.toRadians(direction + 15)) * feelerDistance);
-		yFeelerRight = (float) (y + Math.cos(Math.toRadians(direction + 15)) * feelerDistance);
-		xFeelerLeft = (float) (x + Math.sin(Math.toRadians(direction - 15)) * feelerDistance);
-		yFeelerLeft = (float) (y + Math.cos(Math.toRadians(direction - 15)) * feelerDistance);
+		xFeelerRight = x + Math.sin(Math.toRadians(direction + 15)) * feelerDistance;
+		yFeelerRight = y + Math.cos(Math.toRadians(direction + 15)) * feelerDistance;
+		xFeelerLeft = x + Math.sin(Math.toRadians(direction - 15)) * feelerDistance;
+		yFeelerLeft = y + Math.cos(Math.toRadians(direction - 15)) * feelerDistance;
 	}
 	
 	/**
@@ -507,7 +529,7 @@ public class Creature {
 	public String save() {
 		String data = "";
 		data += x + "," + y + "," + direction + "," + energy + "," + yearBorn + "," 
-		+ color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "," + matureAge + "," + brain.save();
+		+ color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "," + matureAge + "," + motherBrain.save();
 		return data;
 	}
 	
@@ -526,9 +548,9 @@ public class Creature {
 		direction = Float.parseFloat(database[2]);
 		energy = Float.parseFloat(database[3]);
 		yearBorn = Float.parseFloat(database[4]);
-		color = new Color(Float.parseFloat(database[5]), Float.parseFloat(database[6]), Float.parseFloat(database[7]), 1);
+		color = new Color(Integer.parseInt(database[5]), Integer.parseInt(database[6]), Integer.parseInt(database[7]), 1);
 		matureAge = Float.parseFloat(database[8]);
-		brain.load(database[9]);
+		motherBrain.load(database[9]);
 	}
 	
 	/**
