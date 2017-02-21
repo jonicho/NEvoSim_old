@@ -138,31 +138,22 @@ public class NeuralNetwork {
 	}
 	
 	/**
-	 * Draws the neural network on the given Pixmap.
-	 * @param map the Pixmap
-	 * @param x x
-	 * @param y y
-	 * @param width width
-	 * @param height height
+	 * Draws the neural network on the given Graphics.
+	 * @param g the Graphics
 	 */
-	public void draw(Graphics g) {
+	public void draw(Graphics g) { // TODO draw hovered neurons
 		int inpDistance = CreatureInfo.height / inputNeurons.size();
 		int hidDistance = CreatureInfo.height / hiddenNeurons.size();
 		int outDistance = CreatureInfo.height / outputNeurons.size();
 		int layDistance = CreatureInfo.width / 4;
-		drawInputLayer(layDistance / 2, inpDistance, g);
-		drawWorkingLayer(hiddenNeurons, layDistance * 2, hidDistance, g);
-		drawWorkingLayer(outputNeurons, (int) (layDistance * 3.5), outDistance, g);
+		int size = CreatureInfo.height / 300;
+		drawInputLayer(layDistance, inpDistance, g, size);
+		drawWorkingLayer(hiddenNeurons, layDistance * 2, hidDistance, g, size);
+		drawWorkingLayer(outputNeurons, (int) (layDistance * 3), outDistance, g, size);
 	}
 	
 	
-	private void drawInputLayer(int xLayer, int distance, Graphics g) {
-		float highestValue = 0;
-		for (InputNeuron in : inputNeurons) {
-			float value = Math.abs(in.getValue());
-			if (value > highestValue) highestValue = value;
-		}
-		
+	private void drawInputLayer(int xLayer, int distance, Graphics g, int size) {
 		for (int i = 0; i < inputNeurons.size(); i++) {
 			int yI = (int) (distance * (i + 0.5f));
 			float inpValue = inputNeurons.get(i).getValue();
@@ -172,14 +163,15 @@ public class NeuralNetwork {
 				g.setColor(new Color(0, 255, 0));
 			}
 			inpValue = Math.abs(inpValue);
-			int radius = (int) (20f * inpValue / (1 + inpValue));
-			g.fillOval(xLayer, yI, radius, radius);
+			int radius = (int) (10f * inpValue / (1 + inpValue) + 5) * size;
+			g.fillOval(xLayer - radius, yI - radius, radius * 2, radius * 2);
+			g.drawString(inputNeurons.get(i).getName(), 0, yI);
 			inputNeurons.get(i).drawPos = new Vector(xLayer, yI);
 		}
 	}
 
 	
-	private void drawWorkingLayer(ArrayList<WorkingNeuron> wns, int xLayer, int distance, Graphics g) {
+	private void drawWorkingLayer(ArrayList<WorkingNeuron> wns, int xLayer, int distance, Graphics g, int size) {
 		for (int i = 0; i < wns.size(); i++) {
 			int yW = (int) (distance * (i + 0.5f));
 			float inpValue = wns.get(i).getValue();
@@ -189,8 +181,9 @@ public class NeuralNetwork {
 				g.setColor(new Color(0, 255, 0));
 			}
 			inpValue = Math.abs(inpValue);
-			int radius = (int) (20f * inpValue / (1 + inpValue));
-			g.fillOval(xLayer, yW, radius, radius);
+			int radius = (int) (10f * inpValue / (1 + inpValue) + 5) * size;
+			g.fillOval(xLayer - radius, yW - radius, radius * 2, radius * 2);
+			g.drawString(wns.get(i).getName(), xLayer + radius, yW);
 			wns.get(i).drawPos = new Vector(xLayer, yW);
 		}
 		drawConnections(wns, g);

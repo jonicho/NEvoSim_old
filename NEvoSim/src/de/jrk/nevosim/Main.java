@@ -6,9 +6,10 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.File;
 import java.util.Random;
 
 import javax.swing.JButton;
@@ -22,11 +23,10 @@ import javax.swing.JToggleButton;
 public class Main {
 	
 	private static boolean activated = true;
-	public static boolean pause = false;
+	public static boolean pause = true;
 	public static boolean fastForward = false;
 	public static SimThread simThread;
 	public static Creature selectedCreature;
-	public static File file;
 	public static boolean save;
 	public static float year = 0;
 	public static Random rand = new Random();
@@ -61,9 +61,18 @@ public class Main {
 		f.addWindowListener(new WindowListenerImpl());
 		f.setLocationRelativeTo(null);
 		
-		pauseBut.addActionListener(e -> {pause = !pause;});
-		saveBut.addActionListener(e -> {save = true;});
-		fastBut.addActionListener(e -> {fastForward = !fastForward;});
+		pauseBut.addActionListener(e -> {
+			pause = !pause;
+			pauseBut.setSelected(pause);
+		});
+		pauseBut.setSelected(pause);
+		saveBut.addActionListener(e -> {
+			save = true;
+		});
+		fastBut.addActionListener(e -> {
+			fastForward = !fastForward;
+			fastBut.setSelected(fastForward);
+		});
 		
 		menuPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 		
@@ -92,15 +101,11 @@ public class Main {
 		while(true) {
 			infoLabel.setText(generateInfoText());
 			
-			splitPane.setDividerLocation((int)(f.getHeight() < f.getWidth() * 0.7 ? f.getHeight() : f.getWidth() * 0.7));
+			splitPane.setDividerLocation((int)(f.getHeight() < f.getWidth() * 0.6 ? f.getHeight() : f.getWidth() * 0.6));
 			Renderer.width = screen.getWidth();
 			Renderer.height = screen.getHeight();
 			screen.repaint();
 			creatureInfo.draw();
-			
-			if (selectedCreature == null && SimThread.creatures.size() > 0) {
-				selectedCreature = SimThread.creatures.get(0);
-			}
 			
 			if (!simThread.isAlive()) { // exit if the simThread is not alive anymore
 				close();
@@ -113,6 +118,22 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private static void calculateClickedCreature(double x, double y) {
+		Creature c = null;
+		double distance = 0.01;
+		for (int i = 0; i < SimThread.creatures.size(); i++) {
+			Creature cr = SimThread.creatures.get(i);
+			double disX = x - cr.getX();
+			double disY = y - cr.getY();
+			double dis = Math.sqrt(Math.pow(disX, 2) + Math.pow(disY, 2));
+			if (dis < distance) {
+				c = cr;
+				distance = dis;
+			}
+		}
+		if (c != null) selectedCreature = c;
 	}
 	
 	private static String generateInfoText() {
@@ -141,7 +162,6 @@ public class Main {
 	}
 	
 	private static synchronized void close() {
-		System.out.println("Close called!");
 		SimThread.save = true;
 		if (!simThread.isAlive()) System.exit(0);
 	}
@@ -152,6 +172,29 @@ public class Main {
 	
 	private static class Screen extends JLabel {
 		private static final long serialVersionUID = -1914630763930892849L;
+		
+		public Screen() {
+			super();
+			addMouseListener(new MouseListener() {
+				
+				@Override
+				public void mouseReleased(MouseEvent e) {}
+				
+				@Override
+				public void mousePressed(MouseEvent e) {
+					calculateClickedCreature((double)e.getX() / (double)Renderer.size, (double)e.getY() / (double)Renderer.size);
+				}
+				
+				@Override
+				public void mouseExited(MouseEvent e) {}
+				
+				@Override
+				public void mouseEntered(MouseEvent e) {}
+				
+				@Override
+				public void mouseClicked(MouseEvent e) {}
+			});
+		}
 
 		@Override
 		protected void paintComponent(Graphics g) {

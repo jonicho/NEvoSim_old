@@ -23,7 +23,7 @@ public class SaveLoad {
 	public static final String FILE_EXTENSION = ".nessf";
 	
 	public SaveLoad() {
-		this.file = Main.file;
+		this.file = new File(System.getProperty("user.home"));
 	}
 	
 	/**
@@ -41,6 +41,7 @@ public class SaveLoad {
 		JFileChooser fc = new JFileChooser(file);
 		fc.setDialogTitle("Save");
 		fc.setFileFilter(new FileNameExtensionFilter("NEvoSim Save File", "nessf"));
+		fc.showDialog(Main.f, "Save");
 		file = fc.getSelectedFile();
 		if (file != null) {
 			if (!file.getPath().endsWith(FILE_EXTENSION)) {
@@ -84,15 +85,14 @@ public class SaveLoad {
 					boolean finished = false;
 					while (!finished) {
 						String line = br.readLine();
-						System.out.println(line);
 						if (line == null) {
 							finished = true;
 						} else {
 							string += line;
 						}
 					}
-					br.close();
 					fr.close();
+					br.close();
 					string.replaceAll("\n", "");
 					databaseLoad = string.split(";");
 					Main.year = Float.parseFloat(databaseLoad[0]);
@@ -106,6 +106,7 @@ public class SaveLoad {
 				} else {
 					System.exit(0);
 				}
+				return;
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(0);

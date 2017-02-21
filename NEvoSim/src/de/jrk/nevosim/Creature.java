@@ -58,8 +58,7 @@ public class Creature {
 	private NeuralNetwork motherBrain;
 	
 	private boolean alive = true;
-	@SuppressWarnings("unused")
-	private boolean selected; //TODO draw selected indicator
+	private boolean selected;
 	
 	
 	private static final double COST_MULTIPLIER = 0.05;
@@ -68,28 +67,26 @@ public class Creature {
 	private static final double FEELER_SIZE = 0.003;
 	
 	
-	public static final String IN_ONLAND = "in_1";
-	public static final String IN_RIGHTFEELERONLAND = "in_2";
-	public static final String IN_LEFTFEELERONLAND = "in_3";
-	public static final String IN_FOOD = "in_4";
-	public static final String IN_ENERGY = "in_5";
-	public static final String IN_RIGHTFEELERFOOD = "in_6";
-	public static final String IN_LEFTFEELERFOOD = "in_7";
-	public static final String IN_AGE = "in_8";
-	public static final String IN_MEMORY1 = "in_m1";
-	public static final String IN_MEMORY2 = "in_m2";
-	public static final String IN_OSCILLATION = "in_9";
-	public static final String IN_GENETICDIFFERENCE = "in_10";
-	public static final String IN_ISATTACKED = "in_11";
+	public static final String IN_ONLAND = "in_on-land";
+	public static final String IN_RIGHTFEELERONLAND = "in_right-feeler-on-land";
+	public static final String IN_LEFTFEELERONLAND = "in_left-feeler-on-land";
+	public static final String IN_FOOD = "in_food";
+	public static final String IN_ENERGY = "in_energy";
+	public static final String IN_RIGHTFEELERFOOD = "in_right-feeler-food";
+	public static final String IN_LEFTFEELERFOOD = "in_left-feeler-food";
+	public static final String IN_AGE = "in_age";
+	public static final String IN_GENETICDIFFERENCE = "in_genetic-difference";
+	public static final String IN_ISATTACKED = "in_is-attacked";
+	public static final String IN_MEMORY1 = "in_memory-1";
+	public static final String IN_MEMORY2 = "in_memory-2";
 
-	public static final String OUT_ROTATE = "out_1";
-	public static final String OUT_EAT = "out_2";
-	public static final String OUT_MOVE = "out_3";
-	public static final String OUT_SPLIT = "out_4";
-	public static final String OUT_MEMORY1 = "out_m1";
-	public static final String OUT_MEMORY2 = "out_m2";
-	public static final String OUT_OSCILLATION = "out_5";
-	public static final String OUT_ATTACK = "out_6";
+	public static final String OUT_ROTATE = "out_rotate";
+	public static final String OUT_EAT = "out_eat";
+	public static final String OUT_MOVE = "out_move";
+	public static final String OUT_SPLIT = "out_split";
+	public static final String OUT_ATTACK = "out_attack";
+	public static final String OUT_MEMORY1 = "out_memory-1";
+	public static final String OUT_MEMORY2 = "out_memory-2";
 	
 	private InputNeuron inRightFeelerOnLand = new InputNeuron(IN_RIGHTFEELERONLAND);
 	private InputNeuron inLeftFeelerOnLand = new InputNeuron(IN_LEFTFEELERONLAND);
@@ -99,20 +96,18 @@ public class Creature {
 	private InputNeuron inRightFeelerFood = new InputNeuron(IN_RIGHTFEELERFOOD);
 	private InputNeuron inLeftFeelerFood = new InputNeuron(IN_LEFTFEELERFOOD);
 	private InputNeuron inAge = new InputNeuron(IN_AGE);
-	private InputNeuron inMemory1 = new InputNeuron(IN_MEMORY1);
-	private InputNeuron inMemory2 = new InputNeuron(IN_MEMORY2);
-	private InputNeuron inOscillation = new InputNeuron(IN_OSCILLATION);
 	private InputNeuron inGeneticDifference = new InputNeuron(IN_GENETICDIFFERENCE);
 	private InputNeuron inIsAttacked = new InputNeuron(IN_ISATTACKED);
+	private InputNeuron inMemory1 = new InputNeuron(IN_MEMORY1);
+	private InputNeuron inMemory2 = new InputNeuron(IN_MEMORY2);
 	
 	private WorkingNeuron outRotate = new WorkingNeuron(OUT_ROTATE, false);
 	private WorkingNeuron outEat = new WorkingNeuron(OUT_EAT, false);
 	private WorkingNeuron outMove = new WorkingNeuron(OUT_MOVE, false);
 	private WorkingNeuron outSplit = new WorkingNeuron(OUT_SPLIT, false);
+	private WorkingNeuron outAttack = new WorkingNeuron(OUT_ATTACK, false);
 	private WorkingNeuron outMemory1 = new WorkingNeuron(OUT_MEMORY1, false);
 	private WorkingNeuron outMemory2 = new WorkingNeuron(OUT_MEMORY2, false);
-	private WorkingNeuron outOscillation = new WorkingNeuron(IN_OSCILLATION, false);
-	private WorkingNeuron outAttack = new WorkingNeuron(OUT_ATTACK, false);
 	
 	public double getX() {
 		return x;
@@ -229,18 +224,18 @@ public class Creature {
 		inRightFeelerFood = motherBrain.getInputNeuron(IN_RIGHTFEELERFOOD);
 		inLeftFeelerFood = motherBrain.getInputNeuron(IN_LEFTFEELERFOOD);
 		inAge = motherBrain.getInputNeuron(IN_AGE);
-		inMemory1 = motherBrain.getInputNeuron(IN_MEMORY1);
-		inMemory2 = motherBrain.getInputNeuron(IN_MEMORY2);
 		inGeneticDifference = motherBrain.getInputNeuron(IN_GENETICDIFFERENCE);
 		inIsAttacked = motherBrain.getInputNeuron(IN_ISATTACKED);
+		inMemory1 = motherBrain.getInputNeuron(IN_MEMORY1);
+		inMemory2 = motherBrain.getInputNeuron(IN_MEMORY2);
 		
 		outRotate = motherBrain.getOutputNeuron(OUT_ROTATE);
 		outEat = motherBrain.getOutputNeuron(OUT_EAT);
 		outMove = motherBrain.getOutputNeuron(OUT_MOVE);
 		outSplit = motherBrain.getOutputNeuron(OUT_SPLIT);
+		outAttack = motherBrain.getOutputNeuron(OUT_ATTACK);
 		outMemory1 = motherBrain.getOutputNeuron(OUT_MEMORY1);
 		outMemory2 = motherBrain.getOutputNeuron(OUT_MEMORY2);
-		outAttack = motherBrain.getOutputNeuron(OUT_ATTACK);
 	}
 	
 	/**
@@ -256,12 +251,13 @@ public class Creature {
 			e.printStackTrace();
 		}
 		calculateFeelerPos();
+		createImage();
 	}
 	
 	private Color varyColor(Color c) {
-		int r = (int) (c.getRed() + Math.random() * 20);
-		int g = (int) (c.getGreen() + Math.random() * 20);
-		int b = (int) (c.getBlue() + Math.random() * 20);
+		int r = (int) (c.getRed() + Math.random() * 20 - 10);
+		int g = (int) (c.getGreen() + Math.random() * 20 - 10);
+		int b = (int) (c.getBlue() + Math.random() * 20 - 10);
 		r = r < 0 ? 0 : r;
 		r = r > 255 ? 255 : r;
 		g = g < 0 ? 0 : g;
@@ -282,7 +278,12 @@ public class Creature {
 		
 		size = (((energy - 100) / (1 + Math.abs((energy - 100) * s))) * s + 0.4) * 0.1 * Renderer.size;
 		
-		g.setColor(color);
+		if (selected) {
+			double indicatorSize = Renderer.size / 30;
+			g.setColor(new Color(255, 0, 0, 150));
+			g.fillOval((int) (x * Renderer.size - indicatorSize / 2), (int) (y * Renderer.size - indicatorSize / 2),
+					(int)indicatorSize, (int)indicatorSize);
+		}
 		
 		g.drawImage(image, (int)(x * Renderer.size - BODY_SIZE * size/2), 
 				   (int)(y * Renderer.size - BODY_SIZE * size/2), 
@@ -335,7 +336,7 @@ public class Creature {
 		infoText += "Generation: " + generation + "<br>";
 		infoText += "Age: " + age + "<br>";
 		infoText += "Splits: " + splits + "<br>";
-		infoText += "Speed: " + speed + "<br>";
+		infoText += "Speed: " + speed * 10000 + "<br>";
 		infoText += "Direction: " + direction + "<br>";
 		infoText += "</body></html>";
 		return infoText;
@@ -440,11 +441,10 @@ public class Creature {
 		
 		inIsAttacked.setValue(isAttacked);
 		
-		inEnergy.setValue(energy/10);
+		inEnergy.setValue((energy-100) / 200);
 		inAge.setValue(age);
 		inMemory1.setValue(outMemory1.getValue());
 		inMemory2.setValue(outMemory2.getValue());
-		inOscillation.setValue((float) Math.sin(age * outOscillation.getValue() * 100) * 40);
 		calculateGeneticDifference();
 		inGeneticDifference.setValue(geneticDifference);
 	}
@@ -458,7 +458,7 @@ public class Creature {
 		energy -= outEat.getValue() * outEat.getValue() * COST_MULTIPLIER;
 		if (wantAttack)
 			energy -= 1 * COST_MULTIPLIER;
-		energy -= age / 10;
+		energy -= age / 20;
 		if (!(xTile >= 0 && xTile < World.world.length && yTile >= 0 && yTile < World.world[0].length && World.world[xTile][yTile].getType() == TileType.land)) {
 			energy -= 4;
 		}
@@ -490,11 +490,10 @@ public class Creature {
 		motherBrain.addInputNeuron(inRightFeelerFood);
 		motherBrain.addInputNeuron(inLeftFeelerFood);
 		motherBrain.addInputNeuron(inAge);
-		motherBrain.addInputNeuron(inMemory1);
-		motherBrain.addInputNeuron(inMemory2);
-		motherBrain.addInputNeuron(inOscillation);
 		motherBrain.addInputNeuron(inGeneticDifference);
 		motherBrain.addInputNeuron(inIsAttacked);
+		motherBrain.addInputNeuron(inMemory1);
+		motherBrain.addInputNeuron(inMemory2);
 		
 		motherBrain.generateHiddenNeurons(10);
 		
@@ -502,10 +501,9 @@ public class Creature {
 		motherBrain.addOutputNeuron(outMove);
 		motherBrain.addOutputNeuron(outRotate);
 		motherBrain.addOutputNeuron(outSplit);
+		motherBrain.addOutputNeuron(outAttack);
 		motherBrain.addOutputNeuron(outMemory1);
 		motherBrain.addOutputNeuron(outMemory2);
-		motherBrain.addOutputNeuron(outOscillation);
-		motherBrain.addOutputNeuron(outAttack);
 		
 		motherBrain.generateFullMesh();
 		
@@ -528,7 +526,7 @@ public class Creature {
 	 */
 	public String save() {
 		String data = "";
-		data += x + "," + y + "," + direction + "," + energy + "," + yearBorn + "," 
+		data += x + "," + y + "," + direction + "," + energy + "," + yearBorn + "," + generation + ","
 		+ color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "," + matureAge + "," + motherBrain.save();
 		return data;
 	}
@@ -540,7 +538,7 @@ public class Creature {
 	 */
 	public void load(String data) throws Exception {
 		String[] database = data.split(",");
-		if (database.length != 10) {
+		if (database.length != 11) {
 			throw new Exception("The save file is invalid!");
 		}
 		x = Float.parseFloat(database[0]);
@@ -548,9 +546,10 @@ public class Creature {
 		direction = Float.parseFloat(database[2]);
 		energy = Float.parseFloat(database[3]);
 		yearBorn = Float.parseFloat(database[4]);
-		color = new Color(Integer.parseInt(database[5]), Integer.parseInt(database[6]), Integer.parseInt(database[7]), 1);
-		matureAge = Float.parseFloat(database[8]);
-		motherBrain.load(database[9]);
+		generation = Integer.parseInt(database[5]);
+		color = new Color(Integer.parseInt(database[6]), Integer.parseInt(database[7]), Integer.parseInt(database[8]));
+		matureAge = Float.parseFloat(database[9]);
+		motherBrain.load(database[10]);
 	}
 	
 	/**

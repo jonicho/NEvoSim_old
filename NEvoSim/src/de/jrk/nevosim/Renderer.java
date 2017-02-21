@@ -16,7 +16,7 @@ public class Renderer {
 	public static float y;
 	public static int width;
 	public static int height;
-	public static double size;
+	public static int size;
 	public static boolean showAttackIndicator = true;
 	public static BufferedImage attackIndicator;
 	

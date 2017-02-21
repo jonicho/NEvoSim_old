@@ -1,6 +1,8 @@
 package de.jrk.nevosim;
 
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -13,6 +15,8 @@ public class CreatureInfo extends JSplitPane {
 	
 	public static int width;
 	public static int height;
+	
+	public static Vector mousePos = new Vector(0, 0);
 	
 	public CreatureInfo() {
 		setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -35,6 +39,20 @@ public class CreatureInfo extends JSplitPane {
 	
 	private class NetworkScreen extends JPanel {
 		private static final long serialVersionUID = 1932043463540643431L;
+		
+		public NetworkScreen() {
+			super();
+			addMouseMotionListener(new MouseMotionListener() {
+				
+				@Override
+				public void mouseMoved(MouseEvent e) {
+					mousePos = new Vector(e.getX(), e.getY());
+				}
+				
+				@Override
+				public void mouseDragged(MouseEvent e) {}
+			});
+		}
 
 		@Override
 		protected void paintComponent(Graphics g) {
