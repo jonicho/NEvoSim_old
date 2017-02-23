@@ -17,6 +17,7 @@ public class NeuralNetwork {
 	private ArrayList<InputNeuron> inputNeurons = new ArrayList<InputNeuron>();
 	private ArrayList<WorkingNeuron> hiddenNeurons = new ArrayList<WorkingNeuron>();
 	private ArrayList<WorkingNeuron> outputNeurons = new ArrayList<WorkingNeuron>();
+	private boolean hovered = false;
 	
 	/**
 	 * Returns the input neuron with the given name.
@@ -141,15 +142,18 @@ public class NeuralNetwork {
 	 * Draws the neural network on the given Graphics.
 	 * @param g the Graphics
 	 */
-	public void draw(Graphics g) { // TODO draw hovered neurons
+	public void draw(Graphics g) {
 		int inpDistance = CreatureInfo.height / inputNeurons.size();
 		int hidDistance = CreatureInfo.height / hiddenNeurons.size();
 		int outDistance = CreatureInfo.height / outputNeurons.size();
 		int layDistance = CreatureInfo.width / 4;
 		int size = CreatureInfo.height / 300;
+		hovered = false;
 		drawInputLayer(layDistance, inpDistance, g, size);
 		drawWorkingLayer(hiddenNeurons, layDistance * 2, hidDistance, g, size);
 		drawWorkingLayer(outputNeurons, (int) (layDistance * 3), outDistance, g, size);
+		drawConnections(hiddenNeurons, g);
+		drawConnections(outputNeurons, g);
 	}
 	
 	
@@ -166,7 +170,14 @@ public class NeuralNetwork {
 			int radius = (int) (10f * inpValue / (1 + inpValue) + 5) * size;
 			g.fillOval(xLayer - radius, yI - radius, radius * 2, radius * 2);
 			g.drawString(inputNeurons.get(i).getName(), 0, yI);
-			inputNeurons.get(i).drawPos = new Vector(xLayer, yI);
+			Vector drawPos = new Vector(xLayer, yI);
+			inputNeurons.get(i).drawPos = drawPos;
+			if (Vector.getDistance(drawPos, CreatureInfo.mousePos) <= distance / 2) {
+				inputNeurons.get(i).setHovered(true);
+				hovered = true;
+			} else {
+				inputNeurons.get(i).setHovered(false);
+			}
 		}
 	}
 
@@ -184,9 +195,15 @@ public class NeuralNetwork {
 			int radius = (int) (10f * inpValue / (1 + inpValue) + 5) * size;
 			g.fillOval(xLayer - radius, yW - radius, radius * 2, radius * 2);
 			g.drawString(wns.get(i).getName(), xLayer + radius, yW);
-			wns.get(i).drawPos = new Vector(xLayer, yW);
+			Vector drawPos = new Vector(xLayer, yW);
+			wns.get(i).drawPos = drawPos;
+			if (Vector.getDistance(drawPos, CreatureInfo.mousePos) <= distance / 2) {
+				wns.get(i).setHovered(true);
+				hovered = true;
+			} else {
+				wns.get(i).setHovered(false);
+			}
 		}
-		drawConnections(wns, g);
 	}
 
 	
@@ -194,13 +211,16 @@ public class NeuralNetwork {
 		float strongestConnection = getStrongestConnection(wns);
 		for (WorkingNeuron wn : wns) {
 			for (Connection c : wn.getConnections()) {
-				float weight = c.weight;
-				if (weight < 0) {
-					g.setColor(new Color(0, 1, 0, Math.abs(c.weight) / strongestConnection));
-				} else {
-					g.setColor(new Color(1, 0, 0, Math.abs(c.weight) / strongestConnection));
+				if (!hovered || (wn.isHovered() || c.getEntryNeuron().isHovered())) {
+					float weight = c.weight;
+					if (weight < 0) {
+						g.setColor(new Color(0, 1, 0, Math.abs(c.weight) / strongestConnection));
+					} else {
+						g.setColor(new Color(1, 0, 0, Math.abs(c.weight) / strongestConnection));
+					}
+					g.drawLine((int) wn.drawPos.getX(), (int) wn.drawPos.getY(), (int) c.entryNeuron.drawPos.getX(),
+							(int) c.entryNeuron.drawPos.getY());
 				}
-				g.drawLine((int)wn.drawPos.getX(), (int)wn.drawPos.getY(), (int)c.entryNeuron.drawPos.getX(), (int)c.entryNeuron.drawPos.getY());
 			}
 		}
 	}

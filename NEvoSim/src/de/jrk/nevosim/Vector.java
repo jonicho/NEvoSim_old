@@ -16,4 +16,13 @@ public class Vector {
 	public int getY() {
 		return y;
 	}
+	
+	public static int getDistance(Vector vec1, Vector vec2) {
+		return (int) Math.round(Math.sqrt(Math.pow((double)vec1.getX() - (double)vec2.getX(), 2) + Math.pow((double)vec1.getY() - (double)vec2.getY(), 2)));
+	}
+	
+	@Override
+	public String toString() {
+		return x + "; " + y;
+	}
 }

@@ -15,6 +15,10 @@ public class Connection {
 		this.entryNeuron = entryNeuron;
 	}
 	
+	public Neuron getEntryNeuron() {
+		return entryNeuron;
+	}
+	
 	/**
 	 * Returns the value of the entry neuron multiplied by the weight.
 	 * @return value

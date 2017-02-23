@@ -13,6 +13,15 @@ abstract class Neuron {
 	protected float value = -2;
 	protected String name;
 	public Vector drawPos;
+	private boolean hovered;
+	
+	public boolean isHovered() {
+		return hovered;
+	}
+	
+	public void setHovered(boolean hovered) {
+		this.hovered = hovered;
+	}
 	
 	public abstract float getValue();
 	
