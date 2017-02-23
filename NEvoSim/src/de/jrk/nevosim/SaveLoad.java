@@ -2,9 +2,14 @@ package de.jrk.nevosim;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -54,9 +59,10 @@ public class SaveLoad {
 			dataSave += ";\n" + creature.save();
 		}
 		try {
-			FileWriter fw = new FileWriter(file);
-			fw.write(dataSave);
-			fw.close();
+			FileOutputStream fos = new FileOutputStream(file);
+			GZIPOutputStream zos = new GZIPOutputStream(fos);
+			zos.write(dataSave.getBytes());
+			zos.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
@@ -79,8 +85,9 @@ public class SaveLoad {
 				int fcs = fc.showOpenDialog(Main.f);
 				file = fc.getSelectedFile();
 				if (fcs == JFileChooser.APPROVE_OPTION && file != null) {
-					FileReader fr = new FileReader(file);
-					BufferedReader br = new BufferedReader(fr);
+					FileInputStream fis = new FileInputStream(file);
+					GZIPInputStream zis = new GZIPInputStream(fis);
+					BufferedReader br = new BufferedReader(new InputStreamReader(zis));
 					String string = "";
 					boolean finished = false;
 					while (!finished) {
@@ -91,7 +98,6 @@ public class SaveLoad {
 							string += line;
 						}
 					}
-					fr.close();
 					br.close();
 					string.replaceAll("\n", "");
 					databaseLoad = string.split(";");
