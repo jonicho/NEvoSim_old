@@ -4,7 +4,6 @@ package de.jrk.nevosim;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-
 import de.jrk.nevosim.Tile.TileType;
 import de.jrk.nevosim.neuralnetwork.InputNeuron;
 import de.jrk.nevosim.neuralnetwork.NeuralNetwork;
@@ -45,7 +44,7 @@ public class Creature {
 
 	private boolean wantAttack;
 	private boolean attack;
-	private boolean isAttacked;
+	private boolean attacked;
 	private int splits;
 
 	private Creature nearestCreature;
@@ -54,6 +53,9 @@ public class Creature {
 	
 	private Color color;
 	private BufferedImage image;
+	private BufferedImage imageAttacked;
+	private BufferedImage imageAttack;
+	private BufferedImage imageWantAttack;
 	
 	private NeuralNetwork motherBrain;
 	
@@ -196,7 +198,7 @@ public class Creature {
 		if (generateBrain) generateBrain(true);
 		
 		matureAge = Math.random() + 0.2f;
-		createImage();
+		createImages();
 	}
 	
 	/**
@@ -251,7 +253,7 @@ public class Creature {
 			e.printStackTrace();
 		}
 		calculateFeelerPos();
-		createImage();
+		createImages();
 	}
 	
 	private Color varyColor(Color c) {
@@ -284,10 +286,6 @@ public class Creature {
 			g.fillOval((int) (x * Renderer.size - indicatorSize / 2), (int) (y * Renderer.size - indicatorSize / 2),
 					(int)indicatorSize, (int)indicatorSize);
 		}
-		
-		g.drawImage(image, (int)(x * Renderer.size - BODY_SIZE * size/2), 
-				   (int)(y * Renderer.size - BODY_SIZE * size/2), 
-				   (int)(BODY_SIZE * size), (int)(BODY_SIZE * size), null);
 
 		g.drawImage(image, (int)(xFeelerLeft * Renderer.size - FEELER_SIZE * Renderer.size/2), 
 				   (int)(yFeelerLeft * Renderer.size - FEELER_SIZE * Renderer.size/2), 
@@ -297,23 +295,57 @@ public class Creature {
 				   (int)(yFeelerRight * Renderer.size - FEELER_SIZE * Renderer.size/2), 
 				   (int)(FEELER_SIZE * Renderer.size), (int)(FEELER_SIZE * Renderer.size), null);
 		
-		// TODO draw attack indicator
 		if (Renderer.showAttackIndicator) {
-			if (isAttacked) {
+			if (attacked) {
+				drawBody(g, imageAttacked);
 			} else if (attack) {
+				drawBody(g, imageAttack);
 			} else if (wantAttack) {
+				drawBody(g, imageWantAttack);
 			} else {
+				drawBody(g, image);
 			} 
 		}
 	}
 	
-	private void createImage() {
+	private void drawBody(Graphics g, BufferedImage image) {
+		g.drawImage(image, (int)(x * Renderer.size - BODY_SIZE * size/2), 
+				   (int)(y * Renderer.size - BODY_SIZE * size/2), 
+				   (int)(BODY_SIZE * size), (int)(BODY_SIZE * size), null);
+	}
+	
+	private void createImages() {
 		image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = image.getGraphics();
 		g.setColor(Color.BLACK);
 		g.fillOval(0, 0, 100, 100);
 		g.setColor(color);
 		g.fillOval(10, 10, 80, 80);
+		g.dispose();
+		
+		imageAttacked = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+		g = imageAttacked.getGraphics();
+		g.setColor(Color.RED);
+		g.fillOval(0, 0, 100, 100);
+		g.dispose();
+		
+		imageAttack = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+		g = imageAttack.getGraphics();
+		g.setColor(Color.BLACK);
+		g.fillOval(0, 0, 100, 100);
+		g.setColor(Color.RED);
+		g.fillOval(10, 10, 80, 80);
+		g.dispose();
+		
+		imageWantAttack = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+		g = imageWantAttack.getGraphics();
+		g.setColor(Color.BLACK);
+		g.fillOval(0, 0, 100, 100);
+		g.setColor(color);
+		g.fillOval(10, 10, 80, 80);
+		g.setColor(Color.RED);
+		g.fillOval(30, 30, 40, 40);
+		g.dispose();
 	}
 	
 	
@@ -359,7 +391,7 @@ public class Creature {
 				} else {
 					energy -= ATTACK_VALUE;
 				}
-				nearestCreature.isAttacked = true;
+				nearestCreature.attacked = true;
 				attack = true;
 			} else {
 				attack = false;
@@ -402,7 +434,7 @@ public class Creature {
 		
 		age = Main.year - yearBorn;
 		
-		isAttacked = false;
+		attacked = false;
 		
 		updateInputs();
 		motherBrain.invalidate();
@@ -439,7 +471,7 @@ public class Creature {
 			inLeftFeelerFood.setValue(0);
 		}
 		
-		inIsAttacked.setValue(isAttacked);
+		inIsAttacked.setValue(attacked);
 		
 		inEnergy.setValue((energy-100) / 200);
 		inAge.setValue(age);
@@ -526,7 +558,7 @@ public class Creature {
 	 */
 	public String save() {
 		String data = "";
-		data += x + "," + y + "," + direction + "," + energy + "," + yearBorn + "," + generation + ","
+		data += x + "," + y + "," + direction + "," + energy + "," + yearBorn + "," + generation + "," + splits + ","
 		+ color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "," + matureAge + "," + motherBrain.save();
 		return data;
 	}
@@ -538,7 +570,7 @@ public class Creature {
 	 */
 	public void load(String data) throws Exception {
 		String[] database = data.split(",");
-		if (database.length != 11) {
+		if (database.length != 12) {
 			throw new Exception("The save file is invalid!");
 		}
 		x = Float.parseFloat(database[0]);
@@ -547,9 +579,10 @@ public class Creature {
 		energy = Float.parseFloat(database[3]);
 		yearBorn = Float.parseFloat(database[4]);
 		generation = Integer.parseInt(database[5]);
-		color = new Color(Integer.parseInt(database[6]), Integer.parseInt(database[7]), Integer.parseInt(database[8]));
-		matureAge = Float.parseFloat(database[9]);
-		motherBrain.load(database[10]);
+		splits = Integer.parseInt(database[6]);
+		color = new Color(Integer.parseInt(database[7]), Integer.parseInt(database[8]), Integer.parseInt(database[9]));
+		matureAge = Float.parseFloat(database[10]);
+		motherBrain.load(database[11]);
 	}
 	
 	/**
