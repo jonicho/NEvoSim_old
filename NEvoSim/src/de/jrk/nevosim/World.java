@@ -32,7 +32,7 @@ public class World {
 				if (world[x][y].getType() == TileType.water) {
 					g.setColor(Color.BLUE);
 				} else {
-					g.setColor(new Color(1 - (world[x][y].getFood()) / 101, 1, 0));
+					g.setColor(new Color((float) (1 - (world[x][y].getFood()) / 101), 1f, 0f));
 				}
 				g.drawRect(x, y, 1, 1);
 			}
@@ -85,7 +85,7 @@ public class World {
 					
 					
 					if (canGrow) {
-						world[x][y].grow((float) (Math.random() * 0.2f));
+						world[x][y].grow((double) (Math.random() * 0.2f));
 					}
 				}
 			}
@@ -147,7 +147,7 @@ public class World {
 		int i = 0;
 		for (int x = 0; x < world.length; x++) {
 			for (int y = 0; y < world[0].length; y++) {
-				float food = Float.parseFloat(database[i]);
+				double food = Double.parseDouble(database[i]);
 				if (food == -1.0) {
 					world[x][y] = new Tile(TileType.water);
 				} else {

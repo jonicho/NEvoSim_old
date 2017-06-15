@@ -10,7 +10,7 @@ import de.jrk.nevosim.Vector;
  */
 abstract class Neuron {
 
-	protected float value = -2;
+	protected double value = -2;
 	protected String name;
 	public Vector drawPos;
 	private boolean hovered;
@@ -23,7 +23,7 @@ abstract class Neuron {
 		this.hovered = hovered;
 	}
 	
-	public abstract float getValue();
+	public abstract double getValue();
 	
 	public String getName() {
 		return name;
@@ -34,7 +34,7 @@ abstract class Neuron {
 	 * @param x x
 	 * @return The result of the function
 	 */
-	public static float function(float x) {
+	public static double function(double x) {
 		return x / (1 + Math.abs(x));
 	}
 

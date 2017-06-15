@@ -7,10 +7,10 @@ package de.jrk.nevosim.neuralnetwork;
  */
 public class Connection {
 	
-	public float weight = 0;
+	public double weight = 0;
 	public Neuron entryNeuron;
 
-	public Connection(Neuron entryNeuron, float weight) {
+	public Connection(Neuron entryNeuron, double weight) {
 		this.weight = weight;
 		this.entryNeuron = entryNeuron;
 	}
@@ -23,7 +23,7 @@ public class Connection {
 	 * Returns the value of the entry neuron multiplied by the weight.
 	 * @return value
 	 */
-	public float getValue() {
+	public double getValue() {
 		return weight * entryNeuron.getValue();
 	}
 	

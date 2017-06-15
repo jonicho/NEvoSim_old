@@ -21,17 +21,17 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 
 public class Main {
-	
+
 	private static boolean activated = true;
 	public static boolean pause = true;
 	public static boolean fastForward = false;
 	public static SimThread simThread;
 	public static Creature selectedCreature;
 	public static boolean save;
-	public static float year = 0;
+	public static double year = 0;
 	public static Random rand = new Random();
 	private static Renderer rend = new Renderer();
-	
+
 	public static JFrame f = new JFrame("NEvoSim");
 	private static JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	private static Screen screen = new Screen();
@@ -44,7 +44,7 @@ public class Main {
 	private static JLabel infoLabel = new JLabel();
 	private static JPanel butPanel = new JPanel();
 	private static CreatureInfo creatureInfo = new CreatureInfo();
-	
+
 	public static void init() {
 		simThread = new SimThread();
 		simThread.start();
@@ -52,7 +52,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		init();
-		
+
 		f.addKeyListener(new Input());
 		f.setVisible(true);
 		f.setSize(800, 600);
@@ -60,7 +60,7 @@ public class Main {
 		f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		f.addWindowListener(new WindowListenerImpl());
 		f.setLocationRelativeTo(null);
-		
+
 		pauseBut.addActionListener(e -> {
 			pause = !pause;
 			pauseBut.setSelected(pause);
@@ -73,53 +73,57 @@ public class Main {
 			fastForward = !fastForward;
 			fastBut.setSelected(fastForward);
 		});
-		
+
 		menuPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
-		
+
 		butPanel.setLayout(new GridLayout(3, 1, 5, 5));
-		
+
 		butPanel.add(pauseBut);
 		butPanel.add(fastBut);
 		butPanel.add(saveBut);
-		
+
 		menuPanel.add(butPanel);
 		menuPanel.add(infoLabel);
-		
+
 		infoPane.add("Creature Info", creatureInfo);
-		
+
 		splitPaneGui.setDividerSize(0);
 		splitPaneGui.setLeftComponent(menuPanel);
 		splitPaneGui.setRightComponent(infoPane);
-		
+
 		splitPane.setDividerSize(0);
 		splitPane.setLeftComponent(screen);
 		splitPane.setRightComponent(splitPaneGui);
-		
+
 		f.add(splitPane);
-		
+
 		// main loop
-		while(true) {
+		while (true) {
 			infoLabel.setText(generateInfoText());
-			
-			splitPane.setDividerLocation((int)(f.getHeight() < f.getWidth() * 0.6 ? f.getHeight() : f.getWidth() * 0.6));
+
+			splitPane.setDividerLocation(
+					(int) (f.getHeight() < f.getWidth() * 0.6 ? f.getHeight() : f.getWidth() * 0.6));
 			Renderer.width = screen.getWidth();
 			Renderer.height = screen.getHeight();
 			screen.repaint();
 			creatureInfo.draw();
-			
-			if (!simThread.isAlive()) { // exit if the simThread is not alive anymore
+
+			if (!simThread.isAlive()) { // exit if the simThread is not alive
+										// anymore
 				close();
 			}
-			
+
 			try {
-				if (activated) Thread.sleep(10);
-				else Thread.sleep(100);
+				if (activated)
+					Thread.sleep(10);
+				else
+					Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
 	private static void calculateClickedCreature(double x, double y) {
 		Creature c = null;
 		double distance = 0.01;
@@ -133,9 +137,10 @@ public class Main {
 				distance = dis;
 			}
 		}
-		if (c != null) selectedCreature = c;
+		if (c != null)
+			selectedCreature = c;
 	}
-	
+
 	private static String generateInfoText() {
 		String state;
 		String attIndi;
@@ -156,43 +161,49 @@ public class Main {
 		text += "Sps: " + SimThread.stepsPerSecond + "<br>";
 		text += "Attack Indicators: " + attIndi + "<br>";
 		text += "Creatures: " + SimThread.creatures.size() + "<br>";
-		text += "Year: " + (int)Main.year + "<br>";
+		text += "Year: " + (int) Main.year + "<br>";
 		text += "</body></html>";
 		return text;
 	}
-	
+
 	private static synchronized void close() {
 		SimThread.save = true;
-		if (!simThread.isAlive()) System.exit(0);
+		if (!simThread.isAlive())
+			System.exit(0);
 	}
-	
+
 	public static boolean isActivated() {
 		return activated;
 	}
-	
+
 	private static class Screen extends JLabel {
 		private static final long serialVersionUID = -1914630763930892849L;
-		
+
 		public Screen() {
 			super();
 			addMouseListener(new MouseListener() {
-				
+
 				@Override
-				public void mouseReleased(MouseEvent e) {}
-				
+				public void mouseReleased(MouseEvent e) {
+				}
+
 				@Override
 				public void mousePressed(MouseEvent e) {
-					calculateClickedCreature((double)e.getX() / (double)Renderer.size, (double)e.getY() / (double)Renderer.size);
+					calculateClickedCreature((double) e.getX() / (double) Renderer.size,
+							(double) e.getY() / (double) Renderer.size);
 				}
-				
+
 				@Override
-				public void mouseExited(MouseEvent e) {}
-				
+				public void mouseExited(MouseEvent e) {
+				}
+
 				@Override
-				public void mouseEntered(MouseEvent e) {}
-				
+				public void mouseEntered(MouseEvent e) {
+				}
+
 				@Override
-				public void mouseClicked(MouseEvent e) {}
+				public void mouseClicked(MouseEvent e) {
+				}
 			});
 		}
 
@@ -202,12 +213,12 @@ public class Main {
 			rend.render(g);
 		}
 	}
-	
+
 	private static class Input implements KeyListener {
 
 		@Override
 		public void keyTyped(KeyEvent e) {
-			
+
 		}
 
 		@Override
@@ -226,39 +237,43 @@ public class Main {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			
+
 		}
-		
+
 	}
 
 	private static class WindowListenerImpl implements WindowListener {
 
 		@Override
-		public void windowOpened(WindowEvent e) {}
-		
+		public void windowOpened(WindowEvent e) {
+		}
+
 		@Override
-		public void windowIconified(WindowEvent e) {}
-		
+		public void windowIconified(WindowEvent e) {
+		}
+
 		@Override
-		public void windowDeiconified(WindowEvent e) {}
-		
+		public void windowDeiconified(WindowEvent e) {
+		}
+
 		@Override
 		public void windowDeactivated(WindowEvent e) {
 			activated = false;
 		}
-		
+
 		@Override
 		public void windowClosing(WindowEvent e) {
 			close();
 		}
-		
+
 		@Override
-		public void windowClosed(WindowEvent e) {}
-		
+		public void windowClosed(WindowEvent e) {
+		}
+
 		@Override
 		public void windowActivated(WindowEvent e) {
 			activated = true;
 		}
-		
+
 	}
 }

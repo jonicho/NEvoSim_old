@@ -13,7 +13,7 @@ public class InputNeuron extends Neuron {
 	}
 
 	@Override
-	public float getValue() {
+	public double getValue() {
 		return value;
 	}
 	
@@ -21,7 +21,7 @@ public class InputNeuron extends Neuron {
 	 * Sets the value of the neuron.
 	 * @param value the value
 	 */
-	public void setValue(float value) {
+	public void setValue(double value) {
 		this.value = value;
 	}
 	

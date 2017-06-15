@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
@@ -48,6 +46,7 @@ public class SaveLoad {
 		fc.setFileFilter(new FileNameExtensionFilter("NEvoSim Save File", "nessf"));
 		fc.showDialog(Main.f, "Save");
 		file = fc.getSelectedFile();
+		if (file != null) Main.f.setTitle("NEvoSim - " + file.getName());
 		if (file != null) {
 			if (!file.getPath().endsWith(FILE_EXTENSION)) {
 				file = new File(file.getPath() + FILE_EXTENSION);
@@ -101,7 +100,7 @@ public class SaveLoad {
 					br.close();
 					string.replaceAll("\n", "");
 					databaseLoad = string.split(";");
-					Main.year = Float.parseFloat(databaseLoad[0]);
+					Main.year = Double.parseDouble(databaseLoad[0]);
 					SimThread.creatures.removeAll(SimThread.creatures);
 					SimThread.world.load(databaseLoad[1]);
 					for (int i = 0; i < databaseLoad.length - 2; i++) {
@@ -119,7 +118,7 @@ public class SaveLoad {
 				return;
 			}
 		}
-		Main.f.setVisible(true);
+		Main.f.setTitle("NEvoSim - unnamed");
 		file = new File(System.getProperty("user.home"));
 		SimThread.world.generateRandomWorld();
 	}

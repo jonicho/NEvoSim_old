@@ -18,7 +18,7 @@ public class SimThread extends Thread {
 	public static boolean isStarted = false;
 	public static long nanoFrameDuration;
 	public static int stepsPerSecond;
-	private ArrayList<Float> spss = new ArrayList<Float>();
+	private ArrayList<Double> spss = new ArrayList<Double>();
 	private long nanoTimeBegin;
 	private long nanoTimeEnd;
 	public static int targetFrameDuration = 16;
@@ -49,7 +49,7 @@ public class SimThread extends Thread {
 				}
 				if (creatures.size() < 10 || Math.random() < 0.01) {
 					creatures.add(new Creature(new Color((float) Math.random(), (float) Math.random(), (float) Math.random(), 1), 
-							(float) Math.random(), (float) Math.random(), true));
+							(double) Math.random(), (double) Math.random(), true));
 				}
 				Main.year += 0.0005f;
 			}
@@ -103,11 +103,11 @@ public class SimThread extends Thread {
 					if (disX < 0.03 && disY < 0.03) {
 						double rightFeelerDisX = creatureA.getxFeelerRight() - creatureB.getX();
 						double rightFeelerDisY = creatureA.getyFeelerRight() - creatureB.getY();
-						double rightFeelerDis = (float) Math.sqrt(Math.pow(rightFeelerDisX, 2) + Math.pow(rightFeelerDisY, 2));
+						double rightFeelerDis = (double) Math.sqrt(Math.pow(rightFeelerDisX, 2) + Math.pow(rightFeelerDisY, 2));
 
 						double leftFeelerDisX = creatureA.getxFeelerLeft() - creatureB.getX();
 						double leftFeelerDisY = creatureA.getyFeelerLeft() - creatureB.getY();
-						double leftFeelerDis = (float) Math.sqrt(Math.pow(leftFeelerDisX, 2) + Math.pow(leftFeelerDisY, 2));
+						double leftFeelerDis = (double) Math.sqrt(Math.pow(leftFeelerDisX, 2) + Math.pow(leftFeelerDisY, 2));
 
 						if (rightFeelerDis < 0.004 && creatureA.getNearestCreatureDistance() > rightFeelerDis) {
 							creatureA.setNearestCreature(creatureB);
@@ -129,10 +129,10 @@ public class SimThread extends Thread {
 	 */
 	private void calculateSps() {
 		nanoFrameDuration = nanoTimeEnd - nanoTimeBegin;
-		float sps = 0;
+		double sps = 0;
 		if (!Main.pause) {
 			if (nanoFrameDuration != 0) {
-				sps = 1f / ((float) nanoFrameDuration / 1000000000);
+				sps = 1f / ((double) nanoFrameDuration / 1000000000);
 			}
 			spss.add(sps);
 			

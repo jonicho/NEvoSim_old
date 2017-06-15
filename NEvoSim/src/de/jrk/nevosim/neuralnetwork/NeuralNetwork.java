@@ -9,19 +9,22 @@ import de.jrk.nevosim.Vector;
 
 /**
  * A neural network with one input layer, one hidden layer and one output layer.
+ * 
  * @author Jonas Keller
  *
  */
 public class NeuralNetwork {
-	
+
 	private ArrayList<InputNeuron> inputNeurons = new ArrayList<InputNeuron>();
 	private ArrayList<WorkingNeuron> hiddenNeurons = new ArrayList<WorkingNeuron>();
 	private ArrayList<WorkingNeuron> outputNeurons = new ArrayList<WorkingNeuron>();
 	private boolean hovered = false;
-	
+
 	/**
 	 * Returns the input neuron with the given name.
-	 * @param name The name of the neuron
+	 * 
+	 * @param name
+	 *            The name of the neuron
 	 * @return the input neuron
 	 */
 	public InputNeuron getInputNeuron(String name) {
@@ -35,7 +38,9 @@ public class NeuralNetwork {
 
 	/**
 	 * Returns the output neuron with the given name.
-	 * @param name The name of the neuron
+	 * 
+	 * @param name
+	 *            The name of the neuron
 	 * @return the output neuron
 	 */
 	public WorkingNeuron getOutputNeuron(String name) {
@@ -49,7 +54,9 @@ public class NeuralNetwork {
 
 	/**
 	 * Returns the hidden neuron with the given name.
-	 * @param name The name of the neuron
+	 * 
+	 * @param name
+	 *            The name of the neuron
 	 * @return the hidden neuron
 	 */
 	public WorkingNeuron getHiddenNeuron(String name) {
@@ -60,10 +67,12 @@ public class NeuralNetwork {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Adds the given input neuron.
-	 * @param neuron the input neuron to add
+	 * 
+	 * @param neuron
+	 *            the input neuron to add
 	 */
 	public void addInputNeuron(InputNeuron neuron) {
 		inputNeurons.add(neuron);
@@ -71,7 +80,9 @@ public class NeuralNetwork {
 
 	/**
 	 * Adds the given hidden neuron.
-	 * @param neuron the hidden neuron to add
+	 * 
+	 * @param neuron
+	 *            the hidden neuron to add
 	 */
 	public void addHiddenNeuron(WorkingNeuron neuron) {
 		hiddenNeurons.add(neuron);
@@ -79,25 +90,29 @@ public class NeuralNetwork {
 
 	/**
 	 * Adds the given output neuron.
-	 * @param neuron the output neuron to add
+	 * 
+	 * @param neuron
+	 *            the output neuron to add
 	 */
 	public void addOutputNeuron(WorkingNeuron neuron) {
 		outputNeurons.add(neuron);
 	}
-	
+
 	/**
 	 * Generates {@code amount} hidden neurons.
-	 * @param amount the amount of hidden neurons
+	 * 
+	 * @param amount
+	 *            the amount of hidden neurons
 	 */
 	public void generateHiddenNeurons(int amount) {
 		for (int i = 0; i < amount; i++) {
 			hiddenNeurons.add(new WorkingNeuron("h#" + i, true));
 		}
 	}
-	
+
 	/**
-	 * Connects the complete output layer with the complete hidden layer 
-	 * and the complete hidden layer with the complete input layer.
+	 * Connects the complete output layer with the complete hidden layer and the
+	 * complete hidden layer with the complete input layer.
 	 */
 	public void generateFullMesh() {
 		for (WorkingNeuron hn : hiddenNeurons) {
@@ -105,14 +120,14 @@ public class NeuralNetwork {
 				hn.addConnectionNeuron(in, 1);
 			}
 		}
-		
+
 		for (WorkingNeuron on : outputNeurons) {
 			for (WorkingNeuron hn : hiddenNeurons) {
 				on.addConnectionNeuron(hn, 1);
 			}
 		}
 	}
-	
+
 	/**
 	 * Invalidates all neurons.
 	 */
@@ -120,12 +135,12 @@ public class NeuralNetwork {
 		for (WorkingNeuron hn : hiddenNeurons) {
 			hn.invalidate();
 		}
-		
+
 		for (WorkingNeuron on : outputNeurons) {
 			on.invalidate();
 		}
 	}
-	
+
 	/**
 	 * Randomizes all weights.
 	 */
@@ -137,10 +152,18 @@ public class NeuralNetwork {
 			on.randomizeWeights();
 		}
 	}
-	
+
+	public void calculateNetwork() {
+		for (WorkingNeuron wn : outputNeurons) {
+			wn.getValue();
+		}
+	}
+
 	/**
 	 * Draws the neural network on the given Graphics.
-	 * @param g the Graphics
+	 * 
+	 * @param g
+	 *            the Graphics
 	 */
 	public void draw(Graphics g) {
 		int inpDistance = CreatureInfo.height / inputNeurons.size();
@@ -155,12 +178,11 @@ public class NeuralNetwork {
 		drawConnections(hiddenNeurons, g);
 		drawConnections(outputNeurons, g);
 	}
-	
-	
+
 	private void drawInputLayer(int xLayer, int distance, Graphics g, int size) {
 		for (int i = 0; i < inputNeurons.size(); i++) {
 			int yI = (int) (distance * (i + 0.5f));
-			float inpValue = inputNeurons.get(i).getValue();
+			double inpValue = inputNeurons.get(i).getValue();
 			if (inpValue < 0) {
 				g.setColor(new Color(255, 0, 0));
 			} else {
@@ -181,11 +203,10 @@ public class NeuralNetwork {
 		}
 	}
 
-	
 	private void drawWorkingLayer(ArrayList<WorkingNeuron> wns, int xLayer, int distance, Graphics g, int size) {
 		for (int i = 0; i < wns.size(); i++) {
 			int yW = (int) (distance * (i + 0.5f));
-			float inpValue = wns.get(i).getValue();
+			double inpValue = wns.get(i).getValue();
 			if (inpValue < 0) {
 				g.setColor(new Color(255, 0, 0));
 			} else {
@@ -206,17 +227,16 @@ public class NeuralNetwork {
 		}
 	}
 
-	
 	private void drawConnections(ArrayList<WorkingNeuron> wns, Graphics g) {
-		float strongestConnection = getStrongestConnection(wns);
+		double strongestConnection = getStrongestConnection(wns);
 		for (WorkingNeuron wn : wns) {
 			for (Connection c : wn.getConnections()) {
 				if (!hovered || (wn.isHovered() || c.getEntryNeuron().isHovered())) {
-					float weight = c.weight;
+					double weight = c.weight;
 					if (weight < 0) {
-						g.setColor(new Color(0, 1, 0, Math.abs(c.weight) / strongestConnection));
+						g.setColor(new Color(0f, 1f, 0f, (float) (Math.abs(c.weight) / strongestConnection)));
 					} else {
-						g.setColor(new Color(1, 0, 0, Math.abs(c.weight) / strongestConnection));
+						g.setColor(new Color(1f, 0f, 0f, (float) (Math.abs(c.weight) / strongestConnection)));
 					}
 					g.drawLine((int) wn.drawPos.getX(), (int) wn.drawPos.getY(), (int) c.entryNeuron.drawPos.getX(),
 							(int) c.entryNeuron.drawPos.getY());
@@ -225,21 +245,24 @@ public class NeuralNetwork {
 		}
 	}
 
-	
-	private float getStrongestConnection(ArrayList<WorkingNeuron> workingNeurons) {
-		float result = 0;
+	private double getStrongestConnection(ArrayList<WorkingNeuron> workingNeurons) {
+		double result = 0;
 		for (WorkingNeuron wn : workingNeurons) {
 			for (Connection c : wn.getConnections()) {
-				float weight = Math.abs(c.weight);
-				if (weight > result) result = weight;
+				double weight = Math.abs(c.weight);
+				if (weight > result)
+					result = weight;
 			}
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Mutates the neural network.
-	 * @param value the mutate value. Should be between {@code 0.0} and {@code 1.0}.
+	 * 
+	 * @param value
+	 *            the mutate value. Should be between {@code 0.0} and
+	 *            {@code 1.0}.
 	 */
 	public void mutate() {
 		for (WorkingNeuron hn : hiddenNeurons) {
@@ -249,14 +272,16 @@ public class NeuralNetwork {
 			on.mutate();
 		}
 	}
-	
+
 	/**
 	 * Clones a neural network.
+	 * 
 	 * @return the cloned neural network
 	 */
 	public NeuralNetwork getClonedNetwork() {
 		NeuralNetwork copy = new NeuralNetwork();
-		// adding all neurons that are in this neural network to the cloned neural network
+		// adding all neurons that are in this neural network to the cloned
+		// neural network
 		for (InputNeuron in : inputNeurons) {
 			copy.addInputNeuron(in.getNameCopy());
 		}
@@ -266,42 +291,45 @@ public class NeuralNetwork {
 		for (WorkingNeuron on : outputNeurons) {
 			copy.addOutputNeuron(on.getNameCopy());
 		}
-		
+
 		copy.generateFullMesh();
-		
+
 		// copying all weights
 		for (int i = 0; i < hiddenNeurons.size(); i++) {
 			for (int j = 0; j < hiddenNeurons.get(i).getConnections().size(); j++) {
-				copy.hiddenNeurons.get(i).getConnections().get(j).weight = hiddenNeurons.get(i).getConnections().get(j).weight;
+				copy.hiddenNeurons.get(i).getConnections().get(j).weight = hiddenNeurons.get(i).getConnections()
+						.get(j).weight;
 			}
 		}
-		
+
 		for (int i = 0; i < outputNeurons.size(); i++) {
 			for (int j = 0; j < outputNeurons.get(i).getConnections().size(); j++) {
-				copy.outputNeurons.get(i).getConnections().get(j).weight = outputNeurons.get(i).getConnections().get(j).weight;
+				copy.outputNeurons.get(i).getConnections().get(j).weight = outputNeurons.get(i).getConnections()
+						.get(j).weight;
 			}
 		}
-		
+
 		return copy;
 	}
-	
+
 	/**
 	 * Saves the complete neural network.
+	 * 
 	 * @return the save data
 	 */
 	public String save() {
 		String data = "";
-		
+
 		for (int i = 0; i < hiddenNeurons.size(); i++) {
 			data += hiddenNeurons.get(i).save();
-			
+
 			if (i + 1 != hiddenNeurons.size()) {
 				data += "?";
 			}
 		}
-		
+
 		data += "§";
-		
+
 		for (int i = 0; i < outputNeurons.size(); i++) {
 			data += outputNeurons.get(i).save();
 			if (i + 1 != hiddenNeurons.size()) {
@@ -313,7 +341,9 @@ public class NeuralNetwork {
 
 	/**
 	 * Loads the neural network with the given data.
-	 * @param data the data to load the neural network
+	 * 
+	 * @param data
+	 *            the data to load the neural network
 	 */
 	public void load(String data) {
 		String[] database = data.split("§");
@@ -321,7 +351,7 @@ public class NeuralNetwork {
 		String[] databaseHidden = dataHidden.split("\\?");
 		String dataOutput = database[1];
 		String[] databaseOutput = dataOutput.split("\\?");
-		
+
 		for (int i = 0; i < databaseHidden.length; i++) {
 			String[] databaseN = databaseHidden[i].split(":");
 			WorkingNeuron neuron = getHiddenNeuron(databaseN[0]);
@@ -329,11 +359,12 @@ public class NeuralNetwork {
 				neuron.load(databaseN);
 			}
 		}
-		
+
 		for (int i = 0; i < databaseOutput.length; i++) {
 			String[] databaseN = databaseOutput[i].split(":");
 			WorkingNeuron neuron = getOutputNeuron(databaseN[0]);
-			if (neuron != null) neuron.load(databaseN);
+			if (neuron != null)
+				neuron.load(databaseN);
 		}
 	}
 }

@@ -2,7 +2,6 @@ package de.jrk.nevosim;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 
 /**
  * NEvoSim simulates an evolution with creatures that have neural networks.
@@ -12,18 +11,12 @@ import java.awt.image.BufferedImage;
  *
  */
 public class Renderer {
-	public static float x;
-	public static float y;
+	public static double x;
+	public static double y;
 	public static int width;
 	public static int height;
 	public static int size;
 	public static boolean showAttackIndicator = true;
-	public static BufferedImage attackIndicator;
-	
-	public Renderer() {
-		attackIndicator = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
-		attackIndicator.getGraphics().fillOval(0, 0, 100, 100);
-	}
 	
 	public void render(Graphics g) {
 		g.setColor(Color.BLUE);
@@ -42,35 +35,4 @@ public class Renderer {
 			}
 		}
 	}
-	
-	
-//	/**
-//	 * Calculates witch creature was clicked
-//	 */
-//	private void calculateClickedCreature() {
-//		if (pause || true) {
-//			double mouseX = 0;
-//			double mouseY = 0;
-//			mouseX = (input.mouseX - 500) * zoom + 500 - x;
-//			mouseY = (input.mouseY - 500) * zoom + 500 - y;
-//			if (siteDifference < 0) {
-//				mouseY -= Math.abs(siteDifference/2) * zoom;
-//			} else {
-//				mouseX -= Math.abs(siteDifference/2) * zoom;
-//			}
-//			Creature c = null;
-//			float distance = 12;
-//			for (int i = 0; i < SimThread.creatures.size(); i++) {
-//				Creature cr = SimThread.creatures.get(i);
-//				double disX = mouseX - cr.getX();
-//				double disY = mouseY - cr.getY();
-//				double dis = (float) Math.sqrt(Math.pow(disX, 2) + Math.pow(disY, 2));
-//				if (dis < distance) {
-//					c = cr;
-//					distance = dis;
-//				}
-//			}
-//			if (c != null) selectedCreature = c;
-//		}
-//	}
 }

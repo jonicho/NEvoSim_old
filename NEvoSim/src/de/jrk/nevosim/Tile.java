@@ -8,8 +8,8 @@ package de.jrk.nevosim;
 public class Tile {
 	
 	private TileType type;
-	private float food;
-	public final static float EAT_VALUE = 1f;
+	private double food;
+	public final static double EAT_VALUE = 4f;
 	
 	/**
 	 * Generates a new Tile with the given type.
@@ -24,7 +24,7 @@ public class Tile {
 	 * @param type Whether the Tile is sea (water) or land
 	 * @param food How much food the Tile have
 	 */
-	public Tile(TileType type, float food) {
+	public Tile(TileType type, double food) {
 		this.type = type;
 		this.food = food;
 	}
@@ -42,7 +42,7 @@ public class Tile {
 	 * Returns {@code -1.0} if the tile is water.
 	 * @return The food value
 	 */
-	public float getFood() {
+	public double getFood() {
 		if (type == TileType.water) {
 			return -1;
 		}
@@ -54,7 +54,7 @@ public class Tile {
 	 * Returns {@code 0} if the food value is fewer than {@code EAT_VALUE}.
 	 * @return The eat value
 	 */
-	public float letEat() {
+	public double letEat() {
 		if (type == TileType.land) {
 			if (food >= EAT_VALUE) {
 				food -= EAT_VALUE;
@@ -70,7 +70,7 @@ public class Tile {
 	 * If the food value is more than {@code 100} it sets the food value to {@code 100}.
 	 * @param amount Amount to increase the food value
 	 */
-	public void grow(float amount) {
+	public void grow(double amount) {
 		if (food <= 100) {
 			food += amount;
 		}

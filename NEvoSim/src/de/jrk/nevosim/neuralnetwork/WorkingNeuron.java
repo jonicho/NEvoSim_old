@@ -29,7 +29,7 @@ public class WorkingNeuron extends Neuron {
 	 * @param n The neuron to be connected
 	 * @param weight The weight of the connection
 	 */
-	public void addConnectionNeuron(Neuron n, float weight) {
+	public void addConnectionNeuron(Neuron n, double weight) {
 		connections.add(new Connection(n, weight));
 	}
 	
@@ -56,7 +56,7 @@ public class WorkingNeuron extends Neuron {
 	}
 	
 	@Override
-	public synchronized float getValue() {
+	public synchronized double getValue() {
 		if (value == -2) {
 			calculate(); // re-calculate the value if it is invalid
 		}
@@ -65,7 +65,7 @@ public class WorkingNeuron extends Neuron {
 	
 	/**
 	 * Returns the value as a boolean.
-	 * @return {@code true} if the value is more than {@code 0.1} or less than {@code -0.1}
+	 * @return {@code true} if the value is more than {@code 0}
 	 */
 	public synchronized boolean getValueBool() {
 		return getValue() > 0;
@@ -75,7 +75,7 @@ public class WorkingNeuron extends Neuron {
 	 * Calculates the value with the values of all connections.
 	 */
 	private void calculate() {
-		float x = 0;
+		double x = 0;
 		for (Connection c : connections) {
 			x += c.getValue();
 		}
@@ -103,7 +103,7 @@ public class WorkingNeuron extends Neuron {
 	 */
 	public void randomizeWeights() {
 		for (Connection connection : connections) {
-			connection.weight = (float)Math.random() * 0.2f - 0.1f;
+			connection.weight = (double)Math.random() * 2f - 1f;
 		}
 	}
 	
@@ -143,7 +143,7 @@ public class WorkingNeuron extends Neuron {
 	public void load(String[] database) {
 		for (int i = 0; i < (database.length - 1) / 2; i++) {
 			Connection connection = getConnectionFromName(database[i * 2 + 1]);
-			if (connection != null) connection.weight = Float.parseFloat(database[i * 2 + 2]);
+			if (connection != null) connection.weight = Double.parseDouble(database[i * 2 + 2]);
 		}
 	}
 }
